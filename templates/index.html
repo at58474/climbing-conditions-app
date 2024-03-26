@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Climbing Conditions Dashboard</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/main.css') }}">
+
+</head>
+<body>
+    <div class="container-fluid">
+        <!-- Top bar -->
+        <div class="top-bar">
+            <!-- Adjusted position of login button -->
+            <button class="login-button" onclick="window.location.href='/login'">Login</button>
+        </div>
+        <div class="sidebar">
+            <!-- Climbing conditions section -->
+            <div class="climbing-conditions-section">
+                <h3>Climbing Conditions</h3>
+                <form id="climbing-conditions-form">
+                    <div>
+                        <label for="destination">Select destination:</label>
+                        <select id="destination" name="destination" class="form-control">
+                            <option value="Yosemite National Park, USA">Yosemite National Park, USA</option>
+                            <option value="Joshua Tree National Park, USA">Joshua Tree National Park, USA</option>
+                            <option value="Red River Gorge, USA" selected>Red River Gorge, USA</option>
+                            <option value="Rocky Mountain National Park, USA">Rocky Mountain National Park, USA</option>
+                            <option value="Smith Rock State Park, USA">Smith Rock State Park, USA</option>
+                        </select>
+                    </div>
+                    <div style="text-align: center; margin-top: 1rem;">
+                        <button type="button" id="get-climbing-conditions" class="btn btn-primary">Get Climbing Conditions</button>
+                    </div>
+                </form>
+            </div>
+            <!-- RRG Current Conditions section -->
+            <div class="current-conditions" id="current-conditions">
+                <div class="current-conditions-header">
+                    <h5>RRG Current Conditions</h5>
+                </div>
+                <div class="current-conditions-body">
+                    <p style="margin-bottom: 5px;"><strong style="color: #343a40;">Climbing Conditions Score:</strong> <span id="climbing-conditions-score" style="color: #343a40;">Calculating...</span></p>
+                    <hr style="margin: 10px 0; border-color: #343a40;">
+                    <div class="info-container">
+                        <div class="column">
+                            <p style="margin-bottom: 5px;"><strong style="color: #343a40;">Temperature:</strong> <span id="temperature" style="color: #343a40;">Calculating...</span> °F</p>
+                            <p style="margin-bottom: 5px;"><strong style="color: #343a40;">Humidity:</strong> <span id="humidity" style="color: #343a40;">Calculating...</span>%</p>
+                            <p style="margin-bottom: 5px;"><strong style="color: #343a40;">Dew Point:</strong> <span id="dew-point" style="color: #343a40;">Calculating...</span> °F</p>
+                        </div>
+                        <div class="column">
+                            <!-- Additional information can be added here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-9 offset-md-3">
+            <div id="graph-container"></div>
+        </div>
+    </div>
+    <div class="footer">
+        <p>Footer content goes here</p>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Fetch current climbing conditions on page load
+        fetchCurrentClimbingConditions();
+
+        document.getElementById('get-climbing-conditions').addEventListener('click', function() {
+            var destination = document.getElementById('destination').value;
+            axios.get('/graph?destination=' + destination)
+                .then(function(response) {
+                    var data = response.data;
+                    var graphContainer = document.getElementById('graph-container');
+                    Plotly.newPlot(graphContainer, data);
+                })
+                .catch(function(error) {
+                    console.error('Error fetching climbing conditions data:', error);
+                });
+        });
+
+        function fetchCurrentClimbingConditions() {
+            var destination = "Red River Gorge, USA"; // Hardcoded for Red River Gorge
+            axios.get('/current_conditions?destination=' + destination)
+                .then(function(response) {
+                    var conditions = response.data;
+                    var conditionsHtml = `<h5>RRG Current Conditions</h5>`;
+
+                    // Color the climbing conditions score text based on ranges
+                    var scoreColor = '';
+                    if (conditions.climbing_conditions_score < 4) {
+                        scoreColor = 'red';
+                    } else if (conditions.climbing_conditions_score >= 4 && conditions.climbing_conditions_score <= 6) {
+                        scoreColor = 'yellow';
+                    } else {
+                        scoreColor = 'green';
+                    }
+
+                    // Display climbing conditions score with one decimal place and colored text
+                    var roundedScore = parseFloat(conditions.climbing_conditions_score.toFixed(1));
+                    conditionsHtml += `<p style="color: ${scoreColor};">RRG CCS: ${roundedScore.toFixed(1)}</p>`;
+                    conditionsHtml += `<p>Temperature: ${conditions.temperature.toFixed(2)}°F</p>`;
+                    conditionsHtml += `<p>Humidity: ${conditions.humidity}%</p>`;
+                    conditionsHtml += `<p>Dew Point: ${conditions.dew_point.toFixed(2)}°F</p>`;
+
+                    document.getElementById('current-conditions').innerHTML = conditionsHtml;
+                })
+                .catch(function(error) {
+                    console.error('Error fetching current climbing conditions:', error);
+                });
+        }
+    });
+</script>
+</body>
+</html>
