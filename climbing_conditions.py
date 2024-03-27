@@ -1,7 +1,7 @@
 import requests
 from datetime import datetime, timedelta
-import numpy as np
 import plotly.graph_objects as go
+
 
 def fetch_hourly_weather_data(api_key, city, country):
     url = f"http://api.openweathermap.org/data/2.5/forecast?q={city},{country}&appid={api_key}&units=imperial"
@@ -13,6 +13,7 @@ def fetch_hourly_weather_data(api_key, city, country):
     else:
         print("Failed to fetch weather data")
         return None
+
 
 def calculate_climbing_conditions_score(dew_point_f, humidity, temp_f):
     dew_point_weight = 2
@@ -56,11 +57,12 @@ def calculate_climbing_conditions_score(dew_point_f, humidity, temp_f):
 
     return normalized_score
 
+
 def plot_hourly_climbing_scores(hourly_data):
     timestamps = []
     scores = []
     colors = []
-    hover_texts = []
+    x_labels = []  # List to store x-axis labels with weather icons
 
     for hour_data in hourly_data:
         timestamp = datetime.utcfromtimestamp(hour_data['dt'])
@@ -78,16 +80,32 @@ def plot_hourly_climbing_scores(hourly_data):
         else:
             colors.append('blue')  # Set color to blue otherwise
 
-        # Create hover text
-        hover_text = f"Temperature: {temp_f}°F<br>Humidity: {humidity}%<br>Dew Point: {dew_point_f}°F"
-        hover_texts.append(hover_text)
+        # Determine weather condition and select appropriate Unicode character
+        weather_id = hour_data['weather'][0]['id']
+        if 200 <= weather_id < 300:
+            weather_icon = '⛈️'  # Thunderstorm
+        elif 300 <= weather_id < 600:
+            weather_icon = '🌧️'  # Rain
+        elif 600 <= weather_id < 700:
+            weather_icon = '🌨️'  # Snow
+        elif 700 <= weather_id < 800:
+            weather_icon = '🌫️'  # Mist/Fog/Smoke
+        elif weather_id == 800:
+            weather_icon = '☀️'  # Clear sky
+        elif weather_id == 801:
+            weather_icon = '🌤️'  # Few clouds
+        elif 802 <= weather_id <= 804:
+            weather_icon = '☁️'  # Cloudy
+        else:
+            weather_icon = '❓'  # Unknown weather condition
 
-    x_labels = [f"{ts.strftime('%A')} {ts.strftime('%I:%M %p')}" for ts in timestamps]
+        # Construct x-axis label with weather icon
+        x_label = f"{weather_icon} {timestamp.strftime('%A')} {timestamp.strftime('%I:%M %p')}"
+        x_labels.append(x_label)
 
     fig = go.Figure()
 
-    fig.add_trace(go.Scatter(x=timestamps, y=scores, mode='lines+markers', marker=dict(color=colors),
-                             hovertext=hover_texts, hoverinfo="text"))
+    fig.add_trace(go.Scatter(x=timestamps, y=scores, mode='lines+markers', marker=dict(color=colors)))
 
     for hour_data in hourly_data:
         hour_time = datetime.utcfromtimestamp(hour_data['dt']).time()

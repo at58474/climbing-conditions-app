@@ -13,108 +13,189 @@
     <div class="container-fluid">
         <!-- Top bar -->
         <div class="top-bar">
-            <!-- Adjusted position of login button -->
-            <button class="login-button" onclick="window.location.href='/login'">Login</button>
+            <!-- Insert top bar content if needed -->
         </div>
-        <div class="sidebar">
-            <!-- Climbing conditions section -->
-            <div class="climbing-conditions-section">
-                <h3>Climbing Conditions</h3>
-                <form id="climbing-conditions-form">
-                    <div>
-                        <label for="destination">Select destination:</label>
-                        <select id="destination" name="destination" class="form-control">
-                            <option value="Yosemite National Park, USA">Yosemite National Park, USA</option>
-                            <option value="Joshua Tree National Park, USA">Joshua Tree National Park, USA</option>
-                            <option value="Red River Gorge, USA" selected>Red River Gorge, USA</option>
-                            <option value="Rocky Mountain National Park, USA">Rocky Mountain National Park, USA</option>
-                            <option value="Smith Rock State Park, USA">Smith Rock State Park, USA</option>
-                        </select>
-                    </div>
-                    <div style="text-align: center; margin-top: 1rem;">
-                        <button type="button" id="get-climbing-conditions" class="btn btn-primary">Get Climbing Conditions</button>
-                    </div>
-                </form>
-            </div>
-            <!-- RRG Current Conditions section -->
-            <div class="current-conditions" id="current-conditions">
-                <div class="current-conditions-header">
-                    <h5>RRG Current Conditions</h5>
-                </div>
-                <div class="current-conditions-body">
-                    <p style="margin-bottom: 5px;"><strong style="color: #343a40;">Climbing Conditions Score:</strong> <span id="climbing-conditions-score" style="color: #343a40;">Calculating...</span></p>
-                    <hr style="margin: 10px 0; border-color: #343a40;">
-                    <div class="info-container">
-                        <div class="column">
-                            <p style="margin-bottom: 5px;"><strong style="color: #343a40;">Temperature:</strong> <span id="temperature" style="color: #343a40;">Calculating...</span> °F</p>
-                            <p style="margin-bottom: 5px;"><strong style="color: #343a40;">Humidity:</strong> <span id="humidity" style="color: #343a40;">Calculating...</span>%</p>
-                            <p style="margin-bottom: 5px;"><strong style="color: #343a40;">Dew Point:</strong> <span id="dew-point" style="color: #343a40;">Calculating...</span> °F</p>
+        <div class="content">
+            <div class="sidebar">
+                <!-- Climbing conditions section -->
+                <div class="climbing-conditions-section">
+                    <h3>Climbing Conditions</h3>
+                    <form id="climbing-conditions-form">
+                        <div>
+                            <label for="destination">Select destination:</label>
+                            <select id="destination" name="destination" class="form-control">
+                                <option value="Yosemite National Park, USA">Yosemite National Park, USA</option>
+                                <option value="Joshua Tree National Park, USA">Joshua Tree National Park, USA</option>
+                                <option value="Red River Gorge, USA" selected>Red River Gorge, USA</option>
+                                <option value="Rocky Mountain National Park, USA">Rocky Mountain National Park, USA</option>
+                                <option value="Smith Rock State Park, USA">Smith Rock State Park, USA</option>
+                            </select>
                         </div>
-                        <div class="column">
-                            <!-- Additional information can be added here -->
+                        <div style="text-align: center; margin-top: 1rem;">
+                            <button type="button" id="get-climbing-conditions" class="btn btn-primary">Get Climbing Conditions</button>
+                        </div>
+                    </form>
+                </div>
+                <!-- RRG Current Conditions section -->
+                <div class="current-conditions" id="current-conditions">
+                    <div class="current-conditions-header">
+                        <h5>RRG Current Conditions</h5>
+                    </div>
+                    <div class="current-conditions-body">
+                        <p style="margin-bottom: 5px;"><strong style="color: #343a40;">Climbing Conditions Score:</strong> <span id="climbing-conditions-score" style="color: #343a40;">Calculating...</span></p>
+                        <hr style="margin: 10px 0; border-color: #343a40;">
+                        <div class="info-container">
+                            <div class="column">
+                                <p style="margin-bottom: 5px;"><strong style="color: #343a40;">Temperature:</strong> <span id="temperature" style="color: #343a40;">Calculating...</span> °F</p>
+                                <p style="margin-bottom: 5px;"><strong style="color: #343a40;">Humidity:</strong> <span id="humidity" style="color: #343a40;">Calculating...</span>%</p>
+                                <p style="margin-bottom: 5px;"><strong style="color: #343a40;">Dew Point:</strong> <span id="dew-point" style="color: #343a40;">Calculating...</span> °F</p>
+                            </div>
+                            <div class="column">
+                                <!-- Additional information can be added here -->
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="col-md-9 offset-md-3">
-            <div id="graph-container"></div>
+            <div class="main-content">
+                <div class="graph-container" id="graph-container">
+                    <div class="button-container" id="button-container" style="display: none;">
+                        <button type="button" id="toggle-fullscreen" class="btn btn-secondary" style="width: 150px;">Fullscreen</button>
+                    </div>
+                </div>
+                <!-- Instructions for reading the chart -->
+                <div class="chart-instructions">
+                    <h5>Chart Instructions</h5>
+                    <p>This chart displays the forecasted climbing conditions score for a 5-day period.</p>
+                    <p>Note: Optimal conditions vary from climber to climber, so determining the CCS you perform the best at may be a learning experience.</p>
+                    <ul>
+                        <li>The chart is broken into 3-hour sections, each colored red, yellow, or green.</li>
+                        <li>For the average climber:
+                            <ul>
+                                <li>Red indicates poor conditions.</li>
+                                <li>Yellow indicates good conditions.</li>
+                                <li>Green indicates optimal conditions.</li>
+                            </ul>
+                        </li>
+                        <li>You can hover over each data point on the chart to display the forecasted temperature, humidity, and dew point.</li>
+                        <li>If the data point is red, condensation on the rock is likely.</li>
+                        <li>For quick reference on night and day:
+                            <ul>
+                                <li>Vertical shaded bars represent nighttime.</li>
+                                <li>Non-shaded areas represent daytime hours.</li>
+                            </ul>
+                        </li>
+                        <li>The day and time will be displayed for each data point on the x-axis.</li>
+                    </ul>
+                    <p>* Currently, this chart will be easier to read on a laptop or desktop, but you can zoom in and pan to see the chart on mobile devices.</p>
+                    <br /><br /><br /><br /><br /><br /><br /><br />
+                </div>
+            </div>
         </div>
     </div>
     <div class="footer">
         <p>Footer content goes here</p>
     </div>
-
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Fetch current climbing conditions on page load
+    // Fetch current climbing conditions on page load
+    fetchCurrentClimbingConditions();
+
+    // Check if there's a selected destination in local storage and set it as the selected value in the dropdown
+    var selectedDestination = localStorage.getItem('selectedDestination');
+    if (selectedDestination) {
+        document.getElementById('destination').value = selectedDestination;
+    }
+
+    document.getElementById('get-climbing-conditions').addEventListener('click', function() {
+        var destination = document.getElementById('destination').value;
+        axios.get('/graph?destination=' + destination)
+            .then(function(response) {
+                var data = response.data;
+                var graphContainer = document.getElementById('graph-container');
+                Plotly.newPlot(graphContainer, data, {responsive: true}); // Set responsive: true
+                // Show the button container if a chart is displayed
+                document.getElementById('button-container').style.display = 'block';
+                // Store the selected destination in local storage
+                localStorage.setItem('selectedDestination', destination);
+            })
+            .catch(function(error) {
+                console.error('Error fetching climbing conditions data:', error);
+            });
+    });
+
+    // Update current climbing conditions based on selected destination
+    document.getElementById('destination').addEventListener('change', function() {
         fetchCurrentClimbingConditions();
+        // Store the selected destination in local storage
+        var destination = document.getElementById('destination').value;
+        localStorage.setItem('selectedDestination', destination);
+    });
 
-        document.getElementById('get-climbing-conditions').addEventListener('click', function() {
-            var destination = document.getElementById('destination').value;
-            axios.get('/graph?destination=' + destination)
-                .then(function(response) {
-                    var data = response.data;
-                    var graphContainer = document.getElementById('graph-container');
-                    Plotly.newPlot(graphContainer, data);
-                })
-                .catch(function(error) {
-                    console.error('Error fetching climbing conditions data:', error);
-                });
-        });
+    function fetchCurrentClimbingConditions() {
+        var destination = document.getElementById('destination').value;
+        axios.get('/current_conditions?destination=' + destination)
+            .then(function(response) {
+                var conditions = response.data;
+                var conditionsHtml = `<h5>${destination} Current Conditions</h5>`;
 
-        function fetchCurrentClimbingConditions() {
-            var destination = "Red River Gorge, USA"; // Hardcoded for Red River Gorge
-            axios.get('/current_conditions?destination=' + destination)
-                .then(function(response) {
-                    var conditions = response.data;
-                    var conditionsHtml = `<h5>RRG Current Conditions</h5>`;
+                // Color the climbing conditions score text based on ranges
+                var scoreColor = '';
+                if (conditions.climbing_conditions_score < 4) {
+                    scoreColor = 'red';
+                } else if (conditions.climbing_conditions_score >= 4 && conditions.climbing_conditions_score <= 6) {
+                    scoreColor = 'yellow';
+                } else {
+                    scoreColor = 'green';
+                }
 
-                    // Color the climbing conditions score text based on ranges
-                    var scoreColor = '';
-                    if (conditions.climbing_conditions_score < 4) {
-                        scoreColor = 'red';
-                    } else if (conditions.climbing_conditions_score >= 4 && conditions.climbing_conditions_score <= 6) {
-                        scoreColor = 'yellow';
-                    } else {
-                        scoreColor = 'green';
-                    }
+                // Display climbing conditions score with one decimal place and colored text
+                var roundedScore = parseFloat(conditions.climbing_conditions_score.toFixed(1));
+                conditionsHtml += `<p style="color: ${scoreColor};">CCS: ${roundedScore.toFixed(1)}</p>`;
+                conditionsHtml += `<p>Temperature: ${conditions.temperature.toFixed(2)}°F</p>`;
+                conditionsHtml += `<p>Humidity: ${conditions.humidity}%</p>`;
+                conditionsHtml += `<p>Dew Point: ${conditions.dew_point.toFixed(2)}°F</p>`;
 
-                    // Display climbing conditions score with one decimal place and colored text
-                    var roundedScore = parseFloat(conditions.climbing_conditions_score.toFixed(1));
-                    conditionsHtml += `<p style="color: ${scoreColor};">RRG CCS: ${roundedScore.toFixed(1)}</p>`;
-                    conditionsHtml += `<p>Temperature: ${conditions.temperature.toFixed(2)}°F</p>`;
-                    conditionsHtml += `<p>Humidity: ${conditions.humidity}%</p>`;
-                    conditionsHtml += `<p>Dew Point: ${conditions.dew_point.toFixed(2)}°F</p>`;
+                document.getElementById('current-conditions').innerHTML = conditionsHtml;
+            })
+            .catch(function(error) {
+                console.error('Error fetching current climbing conditions:', error);
+            });
+    }
 
-                    document.getElementById('current-conditions').innerHTML = conditionsHtml;
-                })
-                .catch(function(error) {
-                    console.error('Error fetching current climbing conditions:', error);
-                });
+    // Toggle fullscreen mode
+    document.getElementById('toggle-fullscreen').addEventListener('click', function() {
+        var graphContainer = document.getElementById('graph-container');
+        if (!document.fullscreenElement) {
+            graphContainer.requestFullscreen().catch(err => {
+                console.error('Error attempting to enable full-screen mode:', err);
+            });
+        } else {
+            document.exitFullscreen();
+        }
+        // Resize the chart when entering or exiting fullscreen mode
+        setTimeout(() => {
+            Plotly.Plots.resize(graphContainer);
+        }, 1000); // Delay resizing to ensure fullscreen transition completes
+    });
+
+    // Detect fullscreen change
+    document.addEventListener('fullscreenchange', function(event) {
+        if (!document.fullscreenElement) {
+            console.log('Exited fullscreen mode');
+            // Reload the page when exiting fullscreen mode
+            location.reload();
         }
     });
+
+    // Resize the chart when the window size changes
+    window.addEventListener('resize', function() {
+        var graphContainer = document.getElementById('graph-container');
+        Plotly.Plots.resize(graphContainer);
+    });
+});
+
 </script>
 </body>
 </html>
