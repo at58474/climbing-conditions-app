@@ -63,6 +63,7 @@ def plot_hourly_climbing_scores(hourly_data):
     scores = []
     colors = []
     x_labels = []  # List to store x-axis labels with weather icons
+    hover_text = []  # List to store hover text for each data point
 
     for hour_data in hourly_data:
         timestamp = datetime.utcfromtimestamp(hour_data['dt'])
@@ -103,9 +104,18 @@ def plot_hourly_climbing_scores(hourly_data):
         x_label = f"{weather_icon} {timestamp.strftime('%A')} {timestamp.strftime('%I:%M %p')}"
         x_labels.append(x_label)
 
+        # Construct hover text
+        hover_text.append(f"CCS: {score:.2f}<br>" +
+                          f"Temperature: {temp_f:.2f}°F<br>" +
+                          f"Humidity: {humidity}%<br>" +
+                          f"Dew Point: {dew_point_f:.2f}°F")
+
     fig = go.Figure()
 
-    fig.add_trace(go.Scatter(x=timestamps, y=scores, mode='lines+markers', marker=dict(color=colors)))
+    fig.add_trace(go.Scatter(x=timestamps, y=scores, mode='lines+markers', marker=dict(color=colors),
+                             hovertemplate="<b>%{x}</b><br>" +
+                                           "%{text}<extra></extra>",
+                             text=hover_text))
 
     for hour_data in hourly_data:
         hour_time = datetime.utcfromtimestamp(hour_data['dt']).time()
