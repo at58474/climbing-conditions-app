@@ -30,8 +30,23 @@ This Flask application routing file contains the following functions:
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 from climbing_conditions import fetch_hourly_weather_data, plot_hourly_climbing_scores, calculate_climbing_conditions_score
 import logging
+import os
+import joblib
+from sklearn.model_selection import train_test_split
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.metrics import mean_squared_error, r2_score
 
 application = Flask(__name__)
+
+
+# This loads the decision tree model that was trained to predict the CCS based on temperature and humidity
+# The trained model should be saved to this .pkl file
+model_path = 'decision_tree_regression_model.pkl'
+if not os.path.exists(model_path):
+    raise FileNotFoundError("Trained model file not found.")
+
+# If the model file exists, load the model here so it only has to be loaded once upon initial page load
+model = joblib.load(model_path)
 
 
 @application.route('/')
@@ -87,7 +102,7 @@ def get_destination():
         # checks if hourly_data is populated, if so then stores the returned figure after calling
         #   plot_hourly_climbing_scores function from climbing_conditions.py
         if hourly_data:
-            fig = plot_hourly_climbing_scores(hourly_data, city, destination)
+            fig = plot_hourly_climbing_scores(model, hourly_data, city, destination)
             # converts the figure object into a plotly JSON string
             return hourly_data, city, destination
         else:
@@ -114,7 +129,7 @@ def graph():
 
     hourly_data, city, destination = get_destination()
 
-    fig = plot_hourly_climbing_scores(hourly_data, city, destination)
+    fig = plot_hourly_climbing_scores(model, hourly_data, city, destination)
     # converts the figure object into a plotly JSON string
     return fig.to_json()
 
@@ -161,7 +176,7 @@ def current_conditions():
     humidity = current_hour_data['main']['humidity']
     temp_f = current_hour_data['main']['temp']
     # Calls function to calculate CCS
-    score = calculate_climbing_conditions_score(dew_point_f, humidity, temp_f)
+    score = calculate_climbing_conditions_score(model, dew_point_f, humidity, temp_f)
     logger.info(f"Climbing conditions score calculated: {score}")
 
     # Calls the round() function to round the CCS to the tenths

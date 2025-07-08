@@ -51,85 +51,20 @@ def fetch_hourly_weather_data(api_key, city, country):
         return None
 
 
-def calculate_climbing_conditions_score(dew_point_f, humidity, temp_f):
+def calculate_climbing_conditions_score(model, dew_point, humidity, temperature):
+    # Predicting the climbing conditions score for the given temperature and humidity
+    score = model.predict([(temperature, humidity)])[0]
 
-    # This sets a weight value for dew point, humidity, and temperature based on an assumed importance. Experimentation
-    # may be required to get these weights to be as accurate as possible. This is suggesting humidity and temperature
-    # are both more important in determining climbing conditions than dew point, although dew point is still
-    # significantly important.
-    dew_point_weight = 2
-    humidity_weight = 3
-    temp_weight = 3
-
-    # This sets high and low ranges for optimal climbing performance. These ranges can also be experimented with.
-    # These ranges are used below to calculate a penalty to the ccs score, if outside the optimal range.
-    optimal_dew_point_max = 40
-    optimal_humidity_min = 25
-    optimal_humidity_max = 35
-    optimal_temp_min = 40
-    optimal_temp_max = 69
-
-    # If the dew point is outside of the optimal range, either high or low, a penalty is added as follows assuming
-    #   dew_point max is set to 40:
-    #   - If dew point were 45, then the dew point penalty would be (50-40) / 10 = 1
-    #   - More examples:
-    #        - (60-40) / 10 = 2
-    #        - (85-40) / 10 = 4.6
-    # If dew point is in range no penalty is added, also there is no dew point minimum since anthing under 40 is good
-    #   and anything under can be penalized through the humidity and temperature ranges
-    if dew_point_f > optimal_dew_point_max:
-        dew_point_penalty = (dew_point_f - optimal_dew_point_max) / 10
-    else:
-        dew_point_penalty = 0
-
-    # If the humidity is between the optimal_humidity_min and optimal_humidity_max values then no penalty is added,
-    #   but if outside the range a penalty is added just like in the dew point penalty script above, but there is a
-    #   min and max range
-    if optimal_humidity_min <= humidity <= optimal_humidity_max:
-        humidity_penalty = 0
-    elif humidity < optimal_humidity_min:
-        humidity_penalty = (optimal_humidity_min - humidity) / 10
-    else:
-        humidity_penalty = (humidity - optimal_humidity_max) / 10
-
-    # If the temperature  is less than or equal to the dew point(even though it is impossible for the temperature to be
-    #   less than dew point), then it is likely that the rock will be condensed and an additional penalty is added to
-    #   the CCS score to reflect this suboptimal condition.
-    if temp_f <= dew_point_f:
-        temp_penalty = 2
-
-    # Calculates temperature penalty if necessary
-    elif optimal_temp_min <= temp_f <= optimal_temp_max:
-        temp_penalty = 0
-    elif temp_f < optimal_temp_min:
-        temp_penalty = (optimal_temp_min - temp_f) / 10
-    else:
-        temp_penalty = (temp_f - optimal_temp_max) / 10
-
-    # Since the CCS will be transformed to a scale from 0-10, this calculated the raw CCS score
-    # Assuming the following:
-    #   dew point = 50
-    #   humidity = 60
-    #   temperature = 70
-    # The formula is (2 * (1-1)) +
-    #                 3 * (1-2.5) +
-    #                 3 * 0.1)
-    #                = -4.8
-    raw_ccs = (dew_point_weight * (1 - dew_point_penalty)) + \
-              (humidity_weight * (1 - humidity_penalty)) - \
-              (temp_weight * temp_penalty)
-
-    # This transforms the rew score to be between 0 and 10
-    min_score = -20
-    max_score = 20
-    # If the raw_css score were -4.8, then:
-    #   (1 + (((-4.8-(-20)) / (20-(-20)) * 9)) =
-    normalized_score = 1 + ((raw_ccs - min_score) / (max_score - min_score)) * 9
-
-    return normalized_score
+    # Check if temperature is equal to dew point and apply penalty if true
+    if temperature == dew_point:
+        if score - 2 < 0:
+            return 0  # Set score to 0 if temperature equals dew point but the score will be less than 0
+        else:
+            return score - 2  # Subtract 2 points from the score if the rock is likely to be condenses
+    return score
 
 
-def plot_hourly_climbing_scores(hourly_data, city_display, destination_display):
+def plot_hourly_climbing_scores(model, hourly_data, city_display, destination_display):
     timestamps = []
     scores = []
     colors = []
@@ -144,7 +79,7 @@ def plot_hourly_climbing_scores(hourly_data, city_display, destination_display):
         humidity = hour_data['main']['humidity']
         temp_f = hour_data['main']['temp']
 
-        score = calculate_climbing_conditions_score(dew_point_f, humidity, temp_f)
+        score = calculate_climbing_conditions_score(model, dew_point_f, humidity, temp_f)
         scores.append(score)
 
         if temp_f <= dew_point_f:

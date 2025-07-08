@@ -116,6 +116,15 @@ button[type="button"]:hover {
     justify-content: center;
     margin-top: 20px;
 }
+.image-container {
+    display: inline-block;
+    margin-right: 20px; /* Adjust as needed for spacing between images */
+}
+
+.image-container img {
+    max-width: 100%; /* Make images responsive */
+    height: auto;
+}
 
 /* Responsive styles */
 @media (max-width: 768px) {
