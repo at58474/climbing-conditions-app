@@ -74,14 +74,25 @@
         <div class="row justify-content-center">
             <!-- Current Conditions Widget -->
             <!-- Current Conditions Widget -->
-            <div id="current-conditions-widget" class="widget">
-                <h3>Current Climbing Conditions</h3>
-                <ul>
-                    <li><strong>Climbing Conditions Score (CCS):</strong> <span id="climbing-conditions-score">Loading...</span></li>
-                    <li><strong>Temperature:</strong> <span id="temperature">Loading...</span></li>
-                    <li><strong>Humidity:</strong> <span id="humidity">Loading...</span></li>
-                    <li><strong>Dew Point:</strong> <span id="dew-point">Loading...</span></li>
-                </ul>
+            <div id="current-conditions-widget" class="widget text-center">
+              <div class="label-current-widget">Current Climbing Conditions</div><br />
+              <div class="conditions-grid">
+                <div class="small-info top-left">
+                  <div class="label">Temp</div>
+                  <div id="temperature" class="value">Loading...</div>
+                </div>
+                <div class="small-info top-right">
+                  <div class="label">Humidity</div>
+                  <div id="humidity" class="value">Loading...</div>
+                </div>
+                <div class="ccs-display">
+                  <div id="climbing-conditions-score" class="ccs-circle">--</div>
+                </div>
+                <div class="small-info bottom-center">
+                  <div class="label">Dew Point</div>
+                  <div id="dew-point" class="value">Loading...</div>
+                </div>
+              </div>
             </div>
             <div class="col-12 mx-auto">
                 <!-- Climbing Conditions Graph -->
@@ -179,10 +190,57 @@ function fetchCurrentClimbingConditions(destination) {
     axios.get(`/current_conditions?destination=${destination}`)
         .then(response => {
             const c = response.data;
-            document.getElementById('climbing-conditions-score').textContent = `CCS: ${c.climbing_conditions_score}`;
-            document.getElementById('temperature').textContent = `${c.temperature.toFixed(2)} °F`;
-            document.getElementById('humidity').textContent = `${c.humidity}%`;
-            document.getElementById('dew-point').textContent = `${c.dew_point.toFixed(2)} °F`;
+
+            // CCS display
+            const ccsElement = document.getElementById('climbing-conditions-score');
+            ccsElement.textContent = c.climbing_conditions_score.toFixed(1);
+            ccsElement.className = 'ccs-circle'; // reset to base class
+            if (c.climbing_conditions_score < 4) {
+                ccsElement.classList.add('ccs-red');
+            } else if (c.climbing_conditions_score <= 6) {
+                ccsElement.classList.add('ccs-yellow');
+            } else {
+                ccsElement.classList.add('ccs-green');
+            }
+
+            // Temperature
+            const tempEl = document.getElementById('temperature');
+            const temp = c.temperature;
+            tempEl.textContent = `${temp.toFixed(2)} °F`;
+            tempEl.className = ''; // reset
+            if (temp < 25) {
+                tempEl.classList.add('metric-red');
+            } else if (temp <= 35) {
+                tempEl.classList.add('metric-yellow');
+            } else if (temp <= 65) {
+                tempEl.classList.add('metric-green');
+            } else if (temp <= 80) {
+                tempEl.classList.add('metric-yellow');
+            } else {
+                tempEl.classList.add('metric-red');
+            }
+
+            // Humidity
+            const humidityEl = document.getElementById('humidity');
+            const humidity = c.humidity;
+            humidityEl.textContent = `${humidity}%`;
+            humidityEl.className = '';
+            if (humidity < 35) {
+                humidityEl.classList.add('metric-green');
+            } else if (humidity <= 45) {
+                humidityEl.classList.add('metric-yellow');
+            } else {
+                humidityEl.classList.add('metric-red');
+            }
+
+            // Dew Point
+            const dewEl = document.getElementById('dew-point');
+            const dew = c.dew_point;
+            dewEl.textContent = `${dew.toFixed(2)} °F`;
+            dewEl.className = '';
+            if (temp <= dew) {
+                dewEl.classList.add('metric-red');
+            }
         })
         .catch(error => {
             console.error('Error fetching climbing conditions:', error);

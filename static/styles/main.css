@@ -144,6 +144,112 @@ button[type="button"]:hover {
     height: auto;
 }
 
+/* Layout for the conditions widget */
+#current-conditions-widget {
+  margin: 30px auto;
+  max-width: 400px;
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.conditions-grid {
+  display: grid;
+  grid-template-areas:
+    "temp . humidity"
+    ". ccs ."
+    ". dew .";
+  grid-template-columns: 1fr 2fr 1fr;
+  grid-template-rows: auto 1fr auto;
+  align-items: center;
+  gap: 10px;
+  position: relative;
+}
+
+.small-info {
+  font-size: 0.9rem;
+  color: #555;
+  text-align: center;
+}
+
+.top-left {
+  grid-area: temp;
+}
+
+.top-right {
+  grid-area: humidity;
+}
+
+.bottom-center {
+  grid-area: dew;
+}
+
+.ccs-display {
+  grid-area: ccs;
+}
+
+.ccs-value {
+  font-size: 3rem;
+  font-weight: bold;
+  padding: 10px 20px;
+  border-radius: 8px;
+  color: white;
+  display: inline-block;
+}
+
+.label {
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: #888;
+}
+.label-current-widget {
+  font-weight: 800;
+  font-size: 0.1.5rem;
+  text-transform: uppercase;
+  color: #888;
+}
+.value {
+  font-size: 1rem;
+  font-weight: 500;
+}
+.metric-red {
+  color: #dc3545; /* Bootstrap danger red */
+}
+
+.metric-yellow {
+  color: #ffc107; /* Bootstrap warning yellow */
+}
+
+.metric-green {
+  color: #28a745; /* Bootstrap success green */
+}
+.ccs-circle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100px;
+  height: 100px;
+  margin: 0 auto 1rem auto;
+  border-radius: 50%;
+  font-size: 2rem;
+  font-weight: bold;
+  color: white;
+}
+
+.ccs-red {
+  background-color: #dc3545;
+}
+
+.ccs-yellow {
+  background-color: #ffc107;
+  color: black;
+}
+
+.ccs-green {
+  background-color: #28a745;
+}
 /* Responsive styles */
 @media (max-width: 768px) {
     .content {
