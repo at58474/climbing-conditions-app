@@ -251,7 +251,20 @@ function fetchAndRenderGraph(url, graphId, buttonContainerId) {
     axios.get(url)
         .then(response => {
             const graphContainer = document.getElementById(graphId);
-            Plotly.newPlot(graphContainer, response.data, { responsive: true });
+            const data = response.data.data || response.data;
+            const layout = {
+                ...(response.data.layout || {}),
+                dragmode: false  // ⛔ disables zoom/pan drag
+            };
+
+            Plotly.purge(graphContainer);
+
+            Plotly.newPlot(graphContainer, data, layout, {
+                displayModeBar: false, // hides zoom/save buttons
+                responsive: true,
+                scrollZoom: false       // ⛔ disables zoom on scroll
+            });
+
             document.getElementById(buttonContainerId).style.display = 'block';
         })
         .catch(error => {
