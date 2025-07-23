@@ -7,232 +7,219 @@
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/main.css') }}">
-
 </head>
 <body>
+    <!-- Header Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+  <div class="container-fluid px-3">
+    <a class="navbar-brand" href="#">Climbing Conditions Dashboard</a>
+
+
+
+      <ul class="navbar-nav me-auto">
+        <!-- Destination Dropdown -->
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="destinationDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Select Area
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="destinationDropdown" id="destination-menu">
+            <!-- Dynamic options here -->
+            <li><a class="dropdown-item" href="#" data-destination="Black Canyon of the Gunnison, CO">Black Canyon of the Gunnison, CO</a></li>
+            <li><a class="dropdown-item" href="#" data-destination="Bishop, CA">Bishop, CA</a></li>
+            <li><a class="dropdown-item" href="#" data-destination="Boone, NC">Boone, NC</a></li>
+            <li><a class="dropdown-item" href="#" data-destination="Chattanooga, TN">Chattanooga, TN</a></li>
+            <li><a class="dropdown-item" href="#" data-destination="Devils Tower National Monument, WY">Devils Tower National Monument, WY</a></li>
+            <li><a class="dropdown-item" href="#" data-destination="Flagstaff, AZ">Flagstaff, AZ</a></li>
+            <li><a class="dropdown-item" href="#" data-destination="Hueco Tanks State Historic Site, TX">Hueco Tanks State Historic Site, TX</a></li>
+            <li><a class="dropdown-item" href="#" data-destination="Indian Creek, UT">Indian Creek, UT</a></li>
+            <li><a class="dropdown-item" href="#" data-destination="Joshua Tree National Park, CA">Joshua Tree National Park, CA</a></li>
+            <li><a class="dropdown-item" href="#" data-destination="Lander, WY">Lander, WY</a></li>
+            <li><a class="dropdown-item" href="#" data-destination="Leavenworth, WA">Leavenworth, WA</a></li>
+            <li><a class="dropdown-item" href="#" data-destination="Little Cottonwood Canyon, UT">Little Cottonwood Canyon, UT</a></li>
+            <li><a class="dropdown-item" href="#" data-destination="Looking Glass Rock, NC">Looking Glass Rock, NC</a></li>
+            <li><a class="dropdown-item" href="#" data-destination="Maple Canyon, UT">Maple Canyon, UT</a></li>
+            <li><a class="dropdown-item" href="#" data-destination="New River Gorge National Park, WV">New River Gorge National Park, WV</a></li>
+            <li><a class="dropdown-item" href="#" data-destination="Red River Gorge, KY">Red River Gorge, KY</a></li>
+            <li><a class="dropdown-item" href="#" data-destination="Red Rock Canyon, NV">Red Rock Canyon, NV</a></li>
+            <li><a class="dropdown-item" href="#" data-destination="Rifle Mountain Park, CO">Rifle Mountain Park, CO</a></li>
+            <li><a class="dropdown-item" href="#" data-destination="Rocky Mountain National Park, CO">Rocky Mountain National Park, CO</a></li>
+            <li><a class="dropdown-item" href="#" data-destination="Rumney, NH">Rumney, NH</a></li>
+            <li><a class="dropdown-item" href="#" data-destination="The Shawangunks, NY">The Shawangunks, NY</a></li>
+            <li><a class="dropdown-item" href="#" data-destination="Smith Rock State Park, OR">Smith Rock State Park, OR</a></li>
+            <li><a class="dropdown-item" href="#" data-destination="Tacoma, WA">Tacoma, WA</a></li>
+            <li><a class="dropdown-item" href="#" data-destination="The Needles, CA">The Needles, CA</a></li>
+            <li><a class="dropdown-item" href="#" data-destination="Yosemite National Park, CA">Yosemite National Park, CA</a></li>
+            <li><a class="dropdown-item" href="#" data-destination="Zion National Park, UT">Zion National Park, UT</a></li>
+
+            <!-- Add more destinations -->
+          </ul>
+        </li>
+      </ul>
+      <span class="navbar-text text-white" id="current-selection">
+        <strong id="selected-destination-label">None</strong>
+      </span>
+
+  </div>
+</nav>
     <div class="container-fluid">
-        <!-- Top bar -->
-        <div class="top-bar">
-            <!-- Insert top bar content if needed -->
-        </div>
-        <div class="content">
-            <div class="sidebar">
-                <!-- Climbing conditions section -->
-                <div class="climbing-conditions-section">
-                    <h3>Climbing Conditions</h3>
-                    <form id="climbing-conditions-form">
-                        <div>
-                            <label for="destination">Select destination:</label>
-                            <select id="destination" name="destination" class="form-control">
-                                <option value="Black Canyon of the Gunnison, CO">Black Canyon of the Gunnison, CO</option>
-                                <option value="Bishop, CA">Bishop, CA</option>
-                                <option value="Boone, NC">Boone, NC</option>
-                                <option value="Chattanooga, TN">Chattanooga, TN</option>
-                                <option value="Devils Tower National Monument, WY">Devils Tower National Monument, WY</option>
-                                <option value="Flagstaff, AZ">Flagstaff, AZ</option>
-                                <option value="Hueco Tanks State Historic Site, TX">Hueco Tanks State Historic Site, TX</option>
-                                <option value="Indian Creek, UT">Indian Creek, UT</option>
-                                <option value="Joshua Tree National Park, CA">Joshua Tree National Park, CA</option>
-                                <option value="Lander, WY">Lander, WY</option>
-                                <option value="Leavenworth, WA">Leavenworth, WA</option>
-                                <option value="Little Cottonwood Canyon, UT">Little Cottonwood Canyon, UT</option>
-                                <option value="Looking Glass Rock, NC">Looking Glass Rock, NC</option>
-                                <option value="Maple Canyon, UT">Maple Canyon, UT</option>
-                                <option value="New River Gorge National Park, WV">New River Gorge National Park, WV</option>
-                                <option value="Red River Gorge, KY">Red River Gorge, KY</option>
-                                <option value="Red Rock Canyon, NV">Red Rock Canyon, NV</option>
-                                <option value="Rifle Mountain Park, CO">Rifle Mountain Park, CO</option>
-                                <option value="Rocky Mountain National Park, CO">Rocky Mountain National Park, CO</option>
-                                <option value="Rumney, NH">Rumney, NH</option>
-                                <option value="Shawangunks, NY">The Shawangunks, NY</option>
-                                <option value="Smith Rock State Park, OR">Smith Rock State Park, OR</option>
-                                <option value="Tacoma, WA">Tacoma, WA</option>
-                                <option value="The Needles, CA">The Needles, CA</option>
-                                <option value="Yosemite National Park, CA">Yosemite National Park, CA</option>
-                                <option value="Zion National Park, UT">Zion National Park, UT</option>
-                            </select>
-                        </div>
-                        <div style="text-align: center; margin-top: 1rem;">
-                            <button type="button" id="get-climbing-conditions" class="btn btn-primary">Get Climbing Conditions</button>
-                        </div>
-                    </form>
-                </div>
-                <!-- RRG Current Conditions section -->
-                <div class="current-conditions" id="current-conditions">
-                    <div class="current-conditions-header">
-                        <h5>RRG Current Conditions</h5>
-                    </div>
-                    <div class="current-conditions-body">
-                        <p style="margin-bottom: 5px;"><strong style="color: #343a40;">Climbing Conditions Score:</strong> <span id="climbing-conditions-score" style="color: #343a40;">Calculating...</span></p>
-                        <hr style="margin: 10px 0; border-color: #343a40;">
-                        <div class="info-container">
-                            <div class="column">
-                                <p style="margin-bottom: 5px;"><strong style="color: #343a40;">Temperature:</strong> <span id="temperature" style="color: #343a40;">Calculating...</span> °F</p>
-                                <p style="margin-bottom: 5px;"><strong style="color: #343a40;">Humidity:</strong> <span id="humidity" style="color: #343a40;">Calculating...</span>%</p>
-                                <p style="margin-bottom: 5px;"><strong style="color: #343a40;">Dew Point:</strong> <span id="dew-point" style="color: #343a40;">Calculating...</span> °F</p>
-                            </div>
-                            <div class="column">
-                                <!-- Additional information can be added here -->
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="main-content">
-                <div class="graph-container" id="graph-container">
-                    <div class="button-container" id="button-container" style="display: none;">
-                        <button type="button" id="toggle-fullscreen" class="btn btn-secondary" style="width: 150px;">Fullscreen</button>
-                    </div>
-                </div>
-                <!-- Instructions for reading the chart -->
-                <div class="chart-instructions">
-                    <h5><b><u>How To Use This App</u></b></h5>
-                    <p>Purpose: Since weather conditions have such a tremendous impact on climbing performance, the goal for this application is to create a standardized score that can be used as a quick reference to assist in determining how the current and forecasted weather will affect climbing ability. Secondary goals are to assist in understanding the differences that exist between climbers, and also to help each individual climber understand how conditions affect their personal performance.</p>
-                    <p>To use this app, simply select the desired location from the drop-down menu in the climbing conditions widget in the left sidebar, then click the Get Climbing Conditions button. A quick reference widget is also displayed in the side bar that displays the current conditions (default Red River Gorge).</p>
-                    <p>A chart will be shown in the main area to the right of the sidebar. The generated chart will display the 5-day forecasted climbing conditions score (CCS) for the selected destination.</p>
-                    <p><i>Note: Optimal conditions vary from climber to climber, so determining the CCS you perform the best at may be a learning experience.</i></p>
-                    <h4>How to read and use the chart:</h4>
+        <!-- Main content section -->
+        <div class="row justify-content-center">
+            <!-- Left Column: Climbing Conditions Form -->
+            <div class="col-md-6 col-lg-5">
 
-                        <p>The chart is broken into 3-hour sections, where each section will have the following properties:</p>
-                        <li>Each 3-hour chart section will be shaded red, yellow, or green:
-                            <ul>
-                                <li><b><span style="color:red">Red</span></b> indicates poor conditions.</li>
-                                <li><b><span style="color:yellow">Yellow</span></b> indicates good conditions.</li>
-                                <li><b><span style="color:green">Green</span></b> indicates optimal conditions (better take off work)</li>
-                            </ul>
-                        </li>
-                        <p><i>* Again, these colors are created based on the average climber, your personal experience may be slightly or significantly different.</i></p>
-                        <li>The chart will either have a vertical shaded bar, or not:
-                            <ul>
-                                <li>If a vertical shaded bar is present, then that signifies the section is representing nighttime hours.</li>
-                                <li>If a vertical shaded bar is absent, then the section represents daytime hours.</li>
-                            </ul>
-                        </li>
-                        <li>Datapoints:
-                            <ul>
-                                <li>Each datapoint represents the CCS for the day and time listed on the x-axis. </li>
-                                <li>To get more information, hover or tap the datapoint to display the forecasted CCS, Temperature, Humidity, and Dew Point.</li>
-                                <li>If the datapoint is red then there will likely be condensation on the rock and the climbing conditions will be very bad.</li>
-                                <li>A weather icon will be displayed in the x-axis label, along with the Day and Time (EST-12hr). The icon will give the forecasted conditions, sunny, partially cloudy, full cloud cover, rain, or snow. <i>Note: The sun icon at night just means a clear night, so read the icons accordingly.</i></li>
-                            </ul>
-                        </li>
-                        <p>If viewing the application on a mobile device the chart can be best viewed by clicking the Fullscreen button then rotating your screen to the horizontal position.</p>
-                        <p>The chart also contains numerous functions to that can assist in a better viewing experience.</p>
+            </div>
+        </div>
+
+        <!-- Climbing Conditions and Temperature Graphs Section -->
+        <div class="row justify-content-center">
+            <!-- Current Conditions Widget -->
+            <!-- Current Conditions Widget -->
+            <div id="current-conditions-widget" class="widget">
+                <h3>Current Climbing Conditions</h3>
+                <ul>
+                    <li><strong>Climbing Conditions Score (CCS):</strong> <span id="climbing-conditions-score">Loading...</span></li>
+                    <li><strong>Temperature:</strong> <span id="temperature">Loading...</span></li>
+                    <li><strong>Humidity:</strong> <span id="humidity">Loading...</span></li>
+                    <li><strong>Dew Point:</strong> <span id="dew-point">Loading...</span></li>
+                </ul>
+            </div>
+            <div class="col-12 mx-auto">
+                <!-- Climbing Conditions Graph -->
+                <div class="graph-container" id="conditions-graph-container">
+                    <h4>Climbing Conditions</h4>
+                    <div class="button-container text-center" id="conditions-button-container" style="display: none;">
+                        <button type="button" id="toggle-conditions-fullscreen" class="btn btn-secondary mb-3" style="width: 150px;">Fullscreen</button>
+                    </div>
+                    <div class="graph-scroll-wrapper">
+                      <div class="graph-fixed-width" id="conditions-graph"></div>
+                    </div>
                 </div>
-                <br /><br />
-                <div class="image-container">
-                    <img src="{{ url_for('static', filename='2D_TH.png') }}" alt="2D">
+                <!-- Temperature Graph -->
+                <div class="graph-container" id="temperature-graph-container">
+                    <h4>Temperature</h4>
+                    <div class="button-container text-center" id="temperature-button-container" style="display: none;">
+                        <button type="button" id="toggle-temperature-fullscreen" class="btn btn-secondary mb-3" style="width: 150px;">Fullscreen</button>
+                    </div>
+                    <div class="graph-scroll-wrapper">
+                      <div class="graph-fixed-width" id="temp-graph"></div>
+                    </div>
                 </div>
-                <div class="image-container">
-                    <img src="{{ url_for('static', filename='3D_THD.png') }}" alt="3D">
+                <!-- Humidity Graph -->
+                <div class="graph-container" id="humidity-graph-container">
+                    <h4>Humidity</h4>
+                    <div class="button-container text-center" id="humidity-button-container" style="display: none;">
+                        <button type="button" id="toggle-humidity-fullscreen" class="btn btn-secondary mb-3" style="width: 150px;">Fullscreen</button>
+                    </div>
+                    <div class="graph-scroll-wrapper">
+                      <div class="graph-fixed-width" id="humidity-graph"></div>
+                    </div>
                 </div>
-                <br /><br /><br /><br />
+
+
             </div>
         </div>
     </div>
-    <div class="footer">
+
+    <!-- Footer -->
+    <footer class="text-center mt-5">
         <p>© 2024 Rising Standard, LLC</p>
-    </div>
+    </footer>
+
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-    // Fetch current climbing conditions on page load
-    fetchCurrentClimbingConditions();
-
-    // Check if there's a selected destination in local storage and set it as the selected value in the dropdown
-    var selectedDestination = localStorage.getItem('selectedDestination');
-    if (selectedDestination) {
-        document.getElementById('destination').value = selectedDestination;
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // Load previously selected destination
+    const storedDestination = localStorage.getItem('selectedDestination');
+    if (storedDestination) {
+        updateSelectedDestination(storedDestination);
     }
 
-    document.getElementById('get-climbing-conditions').addEventListener('click', function() {
-        var destination = document.getElementById('destination').value;
-        axios.get('/graph?destination=' + destination)
-            .then(function(response) {
-                var data = response.data;
-                var graphContainer = document.getElementById('graph-container');
-                Plotly.newPlot(graphContainer, data, {responsive: true}); // Set responsive: true
-                // Show the button container if a chart is displayed
-                document.getElementById('button-container').style.display = 'block';
-                // Store the selected destination in local storage
-                localStorage.setItem('selectedDestination', destination);
-            })
-            .catch(function(error) {
-                console.error('Error fetching climbing conditions data:', error);
-            });
+    // Add click handlers for each dropdown item
+    document.querySelectorAll('#destination-menu .dropdown-item').forEach(item => {
+        item.addEventListener('click', event => {
+            event.preventDefault();
+            const destination = item.getAttribute('data-destination');
+            updateSelectedDestination(destination);
+        });
     });
 
-    // Update current climbing conditions based on selected destination
-    document.getElementById('destination').addEventListener('change', function() {
-        fetchCurrentClimbingConditions();
-        // Store the selected destination in local storage
-        var destination = document.getElementById('destination').value;
-        localStorage.setItem('selectedDestination', destination);
+    // Resize graphs on window resize
+    window.addEventListener('resize', () => {
+        ['temperature-graph', 'humidity-graph', 'dew-point-graph'].forEach(id => {
+            Plotly.Plots.resize(document.getElementById(id));
+        });
     });
 
-    function fetchCurrentClimbingConditions() {
-        var destination = document.getElementById('destination').value;
-        axios.get('/current_conditions?destination=' + destination)
-            .then(function(response) {
-                var conditions = response.data;
-                var conditionsHtml = `<h5>${destination} Current Conditions</h5>`;
-
-                // Color the climbing conditions score text based on ranges
-                var scoreColor = '';
-                if (conditions.climbing_conditions_score < 4) {
-                    scoreColor = 'red';
-                } else if (conditions.climbing_conditions_score >= 4 && conditions.climbing_conditions_score <= 6) {
-                    scoreColor = 'yellow';
-                } else {
-                    scoreColor = 'green';
-                }
-
-                // Display climbing conditions score with one decimal place and colored text
-                var roundedScore = parseFloat(conditions.climbing_conditions_score.toFixed(1));
-                conditionsHtml += `<p style="color: ${scoreColor};">CCS: ${roundedScore.toFixed(1)}</p>`;
-                conditionsHtml += `<p>Temperature: ${conditions.temperature.toFixed(2)}°F</p>`;
-                conditionsHtml += `<p>Humidity: ${conditions.humidity}%</p>`;
-                conditionsHtml += `<p>Dew Point: ${conditions.dew_point.toFixed(2)}°F</p>`;
-
-                document.getElementById('current-conditions').innerHTML = conditionsHtml;
-            })
-            .catch(function(error) {
-                console.error('Error fetching current climbing conditions:', error);
-            });
-    }
-
-    // Toggle fullscreen mode
-    document.getElementById('toggle-fullscreen').addEventListener('click', function() {
-        var graphContainer = document.getElementById('graph-container');
-        if (!document.fullscreenElement) {
-            graphContainer.requestFullscreen().catch(err => {
-                console.error('Error attempting to enable full-screen mode:', err);
-            });
-        } else {
-            document.exitFullscreen();
-        }
-        // Resize the chart when entering or exiting fullscreen mode
-        setTimeout(() => {
-            Plotly.Plots.resize(graphContainer);
-        }, 1000); // Delay resizing to ensure fullscreen transition completes
-    });
-
-    // Detect fullscreen change
-    document.addEventListener('fullscreenchange', function(event) {
-        if (!document.fullscreenElement) {
-            console.log('Exited fullscreen mode');
-            // Reload the page when exiting fullscreen mode
-            location.reload();
-        }
-    });
-
-    // Resize the chart when the window size changes
-    window.addEventListener('resize', function() {
-        var graphContainer = document.getElementById('graph-container');
-        Plotly.Plots.resize(graphContainer);
-    });
+    // Fullscreen toggles
+    document.getElementById('toggle-conditions-fullscreen').addEventListener('click', () => toggleFullscreen('conditions-graph-container'));
+    document.getElementById('toggle-temperature-fullscreen').addEventListener('click', () => toggleFullscreen('temperature-graph-container'));
+    document.getElementById('toggle-humidity-fullscreen').addEventListener('click', () => toggleFullscreen('humidity-graph-container'));
+    document.getElementById('toggle-dew-point-fullscreen').addEventListener('click', () => toggleFullscreen('dew-point-graph-container'));
 });
 
+/**
+ * Updates the UI and fetches new data when a destination is selected
+ */
+function updateSelectedDestination(destination) {
+    // Save and display destination
+    localStorage.setItem('selectedDestination', destination);
+    document.getElementById('selected-destination-label').textContent = destination;
+
+    // Fetch new data
+    fetchCurrentClimbingConditions(destination);
+    fetchAndRenderGraph(`/graph?destination=${destination}`, 'conditions-graph', 'conditions-button-container');
+    fetchAndRenderGraph(`/graphtemp?destination=${destination}`, 'temp-graph', 'temperature-button-container');
+    fetchAndRenderGraph(`/graphhumidity?destination=${destination}`, 'humidity-graph', 'humidity-button-container');
+}
+
+/**
+ * Fetch current conditions for a specific destination
+ */
+function fetchCurrentClimbingConditions(destination) {
+    axios.get(`/current_conditions?destination=${destination}`)
+        .then(response => {
+            const c = response.data;
+            document.getElementById('climbing-conditions-score').textContent = `CCS: ${c.climbing_conditions_score}`;
+            document.getElementById('temperature').textContent = `${c.temperature.toFixed(2)} °F`;
+            document.getElementById('humidity').textContent = `${c.humidity}%`;
+            document.getElementById('dew-point').textContent = `${c.dew_point.toFixed(2)} °F`;
+        })
+        .catch(error => {
+            console.error('Error fetching climbing conditions:', error);
+        });
+}
+
+function fetchAndRenderGraph(url, graphId, buttonContainerId) {
+    axios.get(url)
+        .then(response => {
+            const graphContainer = document.getElementById(graphId);
+            Plotly.newPlot(graphContainer, response.data, { responsive: true });
+            document.getElementById(buttonContainerId).style.display = 'block';
+        })
+        .catch(error => {
+            console.error(`Error fetching data for ${graphId}:`, error);
+        });
+}
+
+function toggleFullscreen(graphContainerId) {
+    const container = document.getElementById(graphContainerId);
+    if (!document.fullscreenElement) {
+        container.requestFullscreen().catch(err => {
+            console.error('Error entering fullscreen:', err);
+        });
+    } else {
+        document.exitFullscreen();
+    }
+    setTimeout(() => {
+        Plotly.Plots.resize(container);
+    }, 1000);
+}
 </script>
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>
+

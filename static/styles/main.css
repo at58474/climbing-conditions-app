@@ -9,6 +9,24 @@ body {
 .container-fluid {
     padding: 0;
 }
+.navbar {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+#selected-destination-label {
+    font-weight: bold;
+    color: #f8f9fa;
+}
+.graph-scroll-wrapper {
+    overflow-x: auto;
+    width: 100%;
+    padding-bottom: 1rem;
+  }
+
+  .graph-fixed-width {
+    width: 2000px;
+    min-width: 2000px;
+  }
 .top-bar {
     background-color: #343a40;
     color: #ffffff;

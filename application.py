@@ -28,7 +28,7 @@ This Flask application routing file contains the following functions:
 
 
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify
-from climbing_conditions import fetch_hourly_weather_data, plot_hourly_climbing_scores, calculate_climbing_conditions_score
+from climbing_conditions import fetch_hourly_weather_data, plot_hourly_climbing_scores, plot_hourly_temp, plot_hourly_humidity, calculate_climbing_conditions_score
 import logging
 import os
 import joblib
@@ -133,6 +133,49 @@ def graph():
     # converts the figure object into a plotly JSON string
     return fig.to_json()
 
+@application.route('/graphtemp')
+def graphtemp():
+    """Gets selected destination and then compares the destination to a dictionary of destinations {destination:city}.
+    Stores the city and country into variables which are then used as parameters in the fetch_hourly_weather_data
+    function call, along with the provided openweathermap.org API key. This function then calls the
+    plot_hourly_climbing_scores function that displays the chart with the hourly data fetched from the weather API.
+
+    Parameters
+    ----------
+
+    Returns
+    -------
+    JSON Figure
+        the climbing conditions hourly plot that displays the CCS
+    """
+
+    hourly_data, city, destination = get_destination()
+
+    fig = plot_hourly_temp(model, hourly_data, city, destination)
+    # converts the figure object into a plotly JSON string
+    return fig.to_json()
+
+@application.route('/graphhumidity')
+def graphhumidity():
+    """Gets selected destination and then compares the destination to a dictionary of destinations {destination:city}.
+    Stores the city and country into variables which are then used as parameters in the fetch_hourly_weather_data
+    function call, along with the provided openweathermap.org API key. This function then calls the
+    plot_hourly_climbing_scores function that displays the chart with the hourly data fetched from the weather API.
+
+    Parameters
+    ----------
+
+    Returns
+    -------
+    JSON Figure
+        the climbing conditions hourly plot that displays the CCS
+    """
+
+    hourly_data, city, destination = get_destination()
+
+    fig = plot_hourly_humidity(model, hourly_data, city, destination)
+    # converts the figure object into a plotly JSON string
+    return fig.to_json()
 
 # Logging is used to track the events that occur in the current_conditions functions to reduce debugging time and to
 #   ensure everything is working as expected.
@@ -194,6 +237,42 @@ def current_conditions():
     #   and content type
     return jsonify(response_data)
 
+
+@application.route('/temperature_data')
+def temperature_data():
+    """Fetches temperature data over time for the selected destination and returns it as JSON."""
+
+    hourly_data, city, destination = get_destination()
+
+    # Extract temperature data over time (e.g., hourly temperatures)
+    times = [entry['dt_txt'] for entry in hourly_data]  # Extract the time (e.g., hours or dates)
+    temperatures = [entry['main']['temp'] for entry in hourly_data]  # Extract the temperatures
+
+    # Prepare the data to be returned for the temperature chart
+    response_data = {
+        'time': times,
+        'temperature': temperatures
+    }
+
+    return jsonify(response_data)
+
+@application.route('/humidity_data')
+def humidity_data():
+    """Fetches temperature data over time for the selected destination and returns it as JSON."""
+
+    hourly_data, city, destination = get_destination()
+
+    # Extract temperature data over time (e.g., hourly temperatures)
+    times = [entry['dt_txt'] for entry in hourly_data]  # Extract the time (e.g., hours or dates)
+    humidity = [entry['main']['humidity'] for entry in hourly_data]  # Extract the temperatures
+
+    # Prepare the data to be returned for the temperature chart
+    response_data = {
+        'time': times,
+        'humidity': humidity
+    }
+
+    return jsonify(response_data)
 
 if __name__ == '__main__':
     application.run()

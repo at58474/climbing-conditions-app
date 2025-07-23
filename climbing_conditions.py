@@ -64,6 +64,27 @@ def calculate_climbing_conditions_score(model, dew_point, humidity, temperature)
     return score
 
 
+def get_weather_icon(weather_id):
+    if 200 <= weather_id < 300:
+        weather_icon = '⛈️'  # Thunderstorm
+    elif 300 <= weather_id < 600:
+        weather_icon = '🌧️'  # Rain
+    elif 600 <= weather_id < 700:
+        weather_icon = '🌨️'  # Snow
+    elif 700 <= weather_id < 800:
+        weather_icon = '🌫️'  # Mist/Fog/Smoke
+    elif weather_id == 800:
+        weather_icon = '☀️'  # Clear sky
+    elif weather_id == 801:
+        weather_icon = '🌤️'  # Few clouds
+    elif 802 <= weather_id <= 804:
+        weather_icon = '☁️'  # Cloudy
+    else:
+        weather_icon = '❓'  # Unknown weather condition
+
+    return weather_icon
+
+
 def plot_hourly_climbing_scores(model, hourly_data, city_display, destination_display):
     timestamps = []
     scores = []
@@ -89,22 +110,7 @@ def plot_hourly_climbing_scores(model, hourly_data, city_display, destination_di
 
         # Determine weather condition and select appropriate Unicode character
         weather_id = hour_data['weather'][0]['id']
-        if 200 <= weather_id < 300:
-            weather_icon = '⛈️'  # Thunderstorm
-        elif 300 <= weather_id < 600:
-            weather_icon = '🌧️'  # Rain
-        elif 600 <= weather_id < 700:
-            weather_icon = '🌨️'  # Snow
-        elif 700 <= weather_id < 800:
-            weather_icon = '🌫️'  # Mist/Fog/Smoke
-        elif weather_id == 800:
-            weather_icon = '☀️'  # Clear sky
-        elif weather_id == 801:
-            weather_icon = '🌤️'  # Few clouds
-        elif 802 <= weather_id <= 804:
-            weather_icon = '☁️'  # Cloudy
-        else:
-            weather_icon = '❓'  # Unknown weather condition
+        weather_icon = get_weather_icon(weather_id)
 
         # Construct x-axis label with weather icon
         x_label = f"{weather_icon} {timestamp.strftime('%A')} {timestamp.strftime('%I:%M %p')}"
@@ -154,9 +160,176 @@ def plot_hourly_climbing_scores(model, hourly_data, city_display, destination_di
                       line=dict(color="rgba(0, 0, 0, 0)", width=0),
                       fillcolor=color, opacity=0.3)
 
-    fig.update_layout(title=f'Hourly Climbing Conditions Score for {city_display}, near {destination_display}',
+    fig.update_layout(title=f'5-Day Conditions Score for {destination_display}, near {city_display}',
                       xaxis=dict(title='Time', tickmode='array', tickvals=timestamps, ticktext=x_labels, tickangle=45),
                       yaxis=dict(title='Score'),
+                      showlegend=False)
+
+    return fig
+
+
+def plot_hourly_temp(model, hourly_data, city_display, destination_display):
+    timestamps = []
+    temps = []
+    colors = []
+    x_labels = []  # List to store x-axis labels with weather icons
+    hover_text = []  # List to store hover text for each data point
+
+    for hour_data in hourly_data:
+        timestamp = datetime.utcfromtimestamp(hour_data['dt'])
+        timestamps.append(timestamp)
+
+        dew_point_f = hour_data['main']['feels_like']
+        humidity = hour_data['main']['humidity']
+        temp_f = hour_data['main']['temp']
+
+        score = calculate_climbing_conditions_score(model, dew_point_f, humidity, temp_f)
+        temps.append(temp_f)
+
+        if temp_f <= dew_point_f:
+            colors.append('red')  # Set color to red if temp <= dew point
+        else:
+            colors.append('blue')  # Set color to blue otherwise
+
+        # Determine weather condition and select appropriate Unicode character
+        weather_id = hour_data['weather'][0]['id']
+        weather_icon = get_weather_icon(weather_id)
+
+        # Construct x-axis label with weather icon
+        x_label = f"{weather_icon} {timestamp.strftime('%A')} {timestamp.strftime('%I:%M %p')}"
+        x_labels.append(x_label)
+
+        # Construct hover text
+        hover_text.append(f"CCS: {score:.2f}<br>" +
+                          f"Temperature: {temp_f:.2f}°F<br>" +
+                          f"Humidity: {humidity}%<br>" +
+                          f"Dew Point: {dew_point_f:.2f}°F")
+
+    fig = go.Figure()
+
+    fig.add_trace(go.Scatter(x=timestamps, y=temps, mode='lines+markers', marker=dict(color=colors),
+                             hovertemplate="<b>%{x}</b><br>" +
+                                           "%{text}<extra></extra>",
+                             text=hover_text))
+
+    for hour_data in hourly_data:
+        hour_time = datetime.utcfromtimestamp(hour_data['dt']).time()
+        if hour_time.hour >= 20 or hour_time.hour < 7:
+            start_time = datetime.utcfromtimestamp(hour_data['dt'])
+            end_time = start_time + timedelta(hours=1)
+            fig.add_shape(type="rect",
+                          x0=start_time, y0=min(temps),
+                          x1=end_time, y1=max(temps),
+                          line=dict(color="grey", width=0),
+                          fillcolor="grey", opacity=0.3)
+
+    for i in range(len(temps) - 1):
+        x0 = timestamps[i]
+        x1 = timestamps[i + 1]
+        y0 = temps[i]
+        y1 = temps[i + 1]
+
+        if y0 < 25:
+            color = "rgba(255, 0, 0, 0.3)"  # Red shade
+        elif y0 >= 25 and y0 <= 35:
+            color = "rgba(255, 255, 0, 0.3)"  # Yellow shade
+        elif y0 >= 36 and y0 <= 65:
+            color = "rgba(0, 255, 0, 0.3)"  # Green shade
+        elif y0 >= 66 and y0 <= 80:
+            color = "rgba(255, 255, 0, 0.3)"  # Yellow shade
+        elif y0 > 80:
+            color = "rgba(255, 0, 0, 0.3)"  # Red shade
+
+        fig.add_shape(type="rect",
+                      x0=x0, y0=min(temps),
+                      x1=x1, y1=max(temps),
+                      line=dict(color="rgba(0, 0, 0, 0)", width=0),
+                      fillcolor=color, opacity=0.3)
+
+    fig.update_layout(title=f'5-Day Temperature for {destination_display}, near {city_display}',
+                      xaxis=dict(title='Time', tickmode='array', tickvals=timestamps, ticktext=x_labels, tickangle=45),
+                      yaxis=dict(title='Temp'),
+                      showlegend=False)
+
+    return fig
+
+def plot_hourly_humidity(model, hourly_data, city_display, destination_display):
+    timestamps = []
+    humids = []
+    colors = []
+    x_labels = []  # List to store x-axis labels with weather icons
+    hover_text = []  # List to store hover text for each data point
+
+    for hour_data in hourly_data:
+        timestamp = datetime.utcfromtimestamp(hour_data['dt'])
+        timestamps.append(timestamp)
+
+        dew_point_f = hour_data['main']['feels_like']
+        humidity = hour_data['main']['humidity']
+        temp_f = hour_data['main']['temp']
+
+        score = calculate_climbing_conditions_score(model, dew_point_f, humidity, temp_f)
+        humids.append(humidity)
+
+        if temp_f <= dew_point_f:
+            colors.append('red')  # Set color to red if temp <= dew point
+        else:
+            colors.append('blue')  # Set color to blue otherwise
+
+        # Determine weather condition and select appropriate Unicode character
+        weather_id = hour_data['weather'][0]['id']
+        weather_icon = get_weather_icon(weather_id)
+
+        # Construct x-axis label with weather icon
+        x_label = f"{weather_icon} {timestamp.strftime('%A')} {timestamp.strftime('%I:%M %p')}"
+        x_labels.append(x_label)
+
+        # Construct hover text
+        hover_text.append(f"CCS: {score:.2f}<br>" +
+                          f"Temperature: {temp_f:.2f}°F<br>" +
+                          f"Humidity: {humidity}%<br>" +
+                          f"Dew Point: {dew_point_f:.2f}°F")
+
+    fig = go.Figure()
+
+    fig.add_trace(go.Scatter(x=timestamps, y=humids, mode='lines+markers', marker=dict(color=colors),
+                             hovertemplate="<b>%{x}</b><br>" +
+                                           "%{text}<extra></extra>",
+                             text=hover_text))
+
+    for hour_data in hourly_data:
+        hour_time = datetime.utcfromtimestamp(hour_data['dt']).time()
+        if hour_time.hour >= 20 or hour_time.hour < 7:
+            start_time = datetime.utcfromtimestamp(hour_data['dt'])
+            end_time = start_time + timedelta(hours=1)
+            fig.add_shape(type="rect",
+                          x0=start_time, y0=min(humids),
+                          x1=end_time, y1=max(humids),
+                          line=dict(color="grey", width=0),
+                          fillcolor="grey", opacity=0.3)
+
+    for i in range(len(humids) - 1):
+        x0 = timestamps[i]
+        x1 = timestamps[i + 1]
+        y0 = humids[i]
+        y1 = humids[i + 1]
+
+        if y0 < 35:
+            color = "rgba(0, 255, 0, 0.3)"  # Green shade
+        elif y0 >= 35 and y0 <= 45:
+            color = "rgba(255, 255, 0, 0.3)"  # Yellow shade
+        elif y0 > 45:
+            color = "rgba(255, 0, 0, 0.3)"  # Red shade
+
+        fig.add_shape(type="rect",
+                      x0=x0, y0=min(humids),
+                      x1=x1, y1=max(humids),
+                      line=dict(color="rgba(0, 0, 0, 0)", width=0),
+                      fillcolor=color, opacity=0.3)
+
+    fig.update_layout(title=f'5-Day Humidity for {destination_display}, near {city_display}',
+                      xaxis=dict(title='Time', tickmode='array', tickvals=timestamps, ticktext=x_labels, tickangle=45),
+                      yaxis=dict(title='Humidity'),
                       showlegend=False)
 
     return fig
