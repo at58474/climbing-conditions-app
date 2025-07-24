@@ -1,437 +1,117 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Climbing Conditions Dashboard</title>
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/main.css') }}">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Climbing Conditions Dashboard</title>
 
+  <!-- External Libraries -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+  <!-- Local CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles/main.css') }}" />
 </head>
 <body>
-    <!-- Header Navbar -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
-  <div class="container-fluid px-3">
-    <a class="navbar-brand" href="#">Climbing Conditions Dashboard</a>
 
-
-
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+    <div class="container-fluid px-3">
+      <a class="navbar-brand" href="#">Climbing Conditions Dashboard</a>
       <ul class="navbar-nav me-auto">
-        <!-- Destination Dropdown -->
+        <!-- Area Dropdown -->
         <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle" href="#" id="destinationDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
             Select Area
           </a>
-          <ul class="dropdown-menu" aria-labelledby="destinationDropdown" id="destination-menu">
-            <!-- Dynamic options here -->
-            <li><a class="dropdown-item" href="#" data-destination="Black Canyon of the Gunnison, CO">Black Canyon of the Gunnison, CO</a></li>
-            <li><a class="dropdown-item" href="#" data-destination="Bishop, CA">Bishop, CA</a></li>
-            <li><a class="dropdown-item" href="#" data-destination="Boone, NC">Boone, NC</a></li>
-            <li><a class="dropdown-item" href="#" data-destination="Chattanooga, TN">Chattanooga, TN</a></li>
-            <li><a class="dropdown-item" href="#" data-destination="Devils Tower National Monument, WY">Devils Tower National Monument, WY</a></li>
-            <li><a class="dropdown-item" href="#" data-destination="Flagstaff, AZ">Flagstaff, AZ</a></li>
-            <li><a class="dropdown-item" href="#" data-destination="Hueco Tanks State Historic Site, TX">Hueco Tanks State Historic Site, TX</a></li>
-            <li><a class="dropdown-item" href="#" data-destination="Indian Creek, UT">Indian Creek, UT</a></li>
-            <li><a class="dropdown-item" href="#" data-destination="Joshua Tree National Park, CA">Joshua Tree National Park, CA</a></li>
-            <li><a class="dropdown-item" href="#" data-destination="Lander, WY">Lander, WY</a></li>
-            <li><a class="dropdown-item" href="#" data-destination="Leavenworth, WA">Leavenworth, WA</a></li>
-            <li><a class="dropdown-item" href="#" data-destination="Little Cottonwood Canyon, UT">Little Cottonwood Canyon, UT</a></li>
-            <li><a class="dropdown-item" href="#" data-destination="Looking Glass Rock, NC">Looking Glass Rock, NC</a></li>
-            <li><a class="dropdown-item" href="#" data-destination="Maple Canyon, UT">Maple Canyon, UT</a></li>
-            <li><a class="dropdown-item" href="#" data-destination="New River Gorge National Park, WV">New River Gorge National Park, WV</a></li>
-            <li><a class="dropdown-item" href="#" data-destination="Red River Gorge, KY">Red River Gorge, KY</a></li>
-            <li><a class="dropdown-item" href="#" data-destination="Red Rock Canyon, NV">Red Rock Canyon, NV</a></li>
-            <li><a class="dropdown-item" href="#" data-destination="Rifle Mountain Park, CO">Rifle Mountain Park, CO</a></li>
-            <li><a class="dropdown-item" href="#" data-destination="Rocky Mountain National Park, CO">Rocky Mountain National Park, CO</a></li>
-            <li><a class="dropdown-item" href="#" data-destination="Rumney, NH">Rumney, NH</a></li>
-            <li><a class="dropdown-item" href="#" data-destination="The Shawangunks, NY">The Shawangunks, NY</a></li>
-            <li><a class="dropdown-item" href="#" data-destination="Smith Rock State Park, OR">Smith Rock State Park, OR</a></li>
-            <li><a class="dropdown-item" href="#" data-destination="Tacoma, WA">Tacoma, WA</a></li>
-            <li><a class="dropdown-item" href="#" data-destination="The Needles, CA">The Needles, CA</a></li>
-            <li><a class="dropdown-item" href="#" data-destination="Yosemite National Park, CA">Yosemite National Park, CA</a></li>
-            <li><a class="dropdown-item" href="#" data-destination="Zion National Park, UT">Zion National Park, UT</a></li>
-
-            <!-- Add more destinations -->
+          <ul class="dropdown-menu" id="destination-menu" aria-labelledby="destinationDropdown">
+            {% for area in areas %}
+              <li><a class="dropdown-item" href="#" data-destination="{{ area }}">{{ area }}</a></li>
+            {% endfor %}
           </ul>
         </li>
       </ul>
-      <span class="navbar-text text-white" id="current-selection">
+      <span class="navbar-text text-white">
         <strong id="selected-destination-label">None</strong>
       </span>
+    </div>
+  </nav>
 
-  </div>
-</nav>
-    <div class="container-fluid">
-        <!-- Main content section -->
-        <div class="row justify-content-center">
-            <!-- Left Column: Climbing Conditions Form -->
-            <div class="col-md-6 col-lg-5">
+  <!-- Main Container -->
+  <div class="container-fluid">
 
-            </div>
-        </div>
-
-
-
-
-
-        <!-- Climbing Conditions and Temperature Graphs Section -->
-        <div class="row justify-content-center">
-            <!-- Current Conditions Widget -->
-            <!-- Current Conditions Widget -->
-            <div id="current-conditions-widget" class="widget text-center">
-              <div class="label-current-widget">Current Climbing Conditions</div><br />
-              <div class="conditions-grid">
-                <div class="small-info top-left">
-                  <div class="label">Temp</div>
-                  <div id="temperature" class="value">Loading...</div>
-                </div>
-                <div class="small-info top-right">
-                  <div class="label">Humidity</div>
-                  <div id="humidity" class="value">Loading...</div>
-                </div>
-                <div class="ccs-display">
-                  <div id="climbing-conditions-score" class="ccs-circle">--</div>
-                </div>
-                <div class="small-info bottom-center">
-                  <div class="label">Dew Point</div>
-                  <div id="dew-point" class="value">Loading...</div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Daily Forecast Section -->
-<div class="graph-container mt-4" id="forecast-container" style="display: none;">
-
-  <div class="row" id="forecast-cards" class="d-flex flex-wrap justify-content-center"></div>
-</div>
-
-            <div class="col-12 mx-auto">
-                <!-- Climbing Conditions Graph -->
-                <div class="graph-container" id="conditions-graph-container">
-
-                    <div class="graph-scroll-wrapper">
-                      <div class="graph-fixed-width" id="conditions-graph"></div>
-                    </div>
-                </div>
-                <!-- Temperature Graph -->
-                <div class="graph-container" id="temperature-graph-container">
-
-                    <div class="graph-scroll-wrapper">
-                      <div class="graph-fixed-width" id="temp-graph"></div>
-                    </div>
-                </div>
-                <!-- Humidity Graph -->
-                <div class="graph-container" id="humidity-graph-container">
-
-                    <div class="graph-scroll-wrapper">
-                      <div class="graph-fixed-width" id="humidity-graph"></div>
-                    </div>
-                </div>
-
-
-            </div>
-        </div>
+    <!-- Spacer Row -->
+    <div class="row justify-content-center">
+      <div class="col-md-6 col-lg-5"><!-- Reserved --></div>
     </div>
 
-    <!-- Footer -->
-    <footer class="text-center mt-5">
-        <p>© 2024 Rising Standard, LLC</p>
-    </footer>
-
-
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script>
-    // Wait for the DOM to finish loading before executing the script
-    document.addEventListener('DOMContentLoaded', () => {
-        // Retrieve and apply the previously selected destination from localStorage
-        const storedDestination = localStorage.getItem('selectedDestination');
-        if (storedDestination) {
-            updateSelectedDestination(storedDestination);
-        }
-
-        // Attach click event listeners to all dropdown items in the destination menu
-        document.querySelectorAll('#destination-menu .dropdown-item').forEach(item => {
-            item.addEventListener('click', event => {
-                event.preventDefault(); // Prevent default link behavior
-                const destination = item.getAttribute('data-destination');
-                updateSelectedDestination(destination); // Update UI and fetch data
-            });
-        });
-
-        // Redraw graphs when the window is resized to ensure responsiveness
-        window.addEventListener('resize', () => {
-            ['temperature-graph', 'humidity-graph', 'dew-point-graph'].forEach(id => {
-                Plotly.Plots.resize(document.getElementById(id));
-            });
-        });
-
-        // Set up fullscreen toggle buttons for different graph containers
-        document.getElementById('toggle-conditions-fullscreen').addEventListener('click', () => toggleFullscreen('conditions-graph-container'));
-        document.getElementById('toggle-temperature-fullscreen').addEventListener('click', () => toggleFullscreen('temperature-graph-container'));
-        document.getElementById('toggle-humidity-fullscreen').addEventListener('click', () => toggleFullscreen('humidity-graph-container'));
-        document.getElementById('toggle-dew-point-fullscreen').addEventListener('click', () => toggleFullscreen('dew-point-graph-container'));
-    });
-
-    /**
-     * Updates the selected destination: saves it, updates UI, and fetches data
-     */
-    function updateSelectedDestination(destination) {
-        // Save selected destination to localStorage
-        localStorage.setItem('selectedDestination', destination);
-
-        // Update the destination label on the UI
-        document.getElementById('selected-destination-label').textContent = destination;
-
-        // Fetch and display current climbing conditions
-        fetchCurrentClimbingConditions(destination);
-
-        // Fetch and render graphs for different metrics
-        fetchAndRenderGraph(`/graph?destination=${destination}`, 'conditions-graph', 'conditions-button-container');
-        fetchAndRenderGraph(`/graphtemp?destination=${destination}`, 'temp-graph', 'temperature-button-container');
-        fetchAndRenderGraph(`/graphhumidity?destination=${destination}`, 'humidity-graph', 'humidity-button-container');
-    }
-
-    /**
-     * Fetches current climbing conditions for the selected destination
-     * and updates the UI accordingly
-     */
-    function fetchCurrentClimbingConditions(destination) {
-        axios.get(`/current_conditions?destination=${destination}`)
-            .then(response => {
-                const c = response.data;
-
-                // Update Climbing Conditions Score (CCS) display
-                const ccsElement = document.getElementById('climbing-conditions-score');
-                ccsElement.textContent = c.climbing_conditions_score.toFixed(1);
-                ccsElement.className = 'ccs-circle'; // Reset to base class
-
-                // Apply color based on score
-                if (c.climbing_conditions_score < 4) {
-                    ccsElement.classList.add('ccs-red');
-                } else if (c.climbing_conditions_score <= 6) {
-                    ccsElement.classList.add('ccs-yellow');
-                } else {
-                    ccsElement.classList.add('ccs-green');
-                }
-
-                // Update Temperature display with color coding
-                const tempEl = document.getElementById('temperature');
-                const temp = c.temperature;
-                tempEl.textContent = `${temp.toFixed(2)} °F`;
-                tempEl.className = ''; // Reset previous styles
-
-                if (temp < 25) {
-                    tempEl.classList.add('metric-red');
-                } else if (temp <= 35) {
-                    tempEl.classList.add('metric-yellow');
-                } else if (temp <= 65) {
-                    tempEl.classList.add('metric-green');
-                } else if (temp <= 80) {
-                    tempEl.classList.add('metric-yellow');
-                } else {
-                    tempEl.classList.add('metric-red');
-                }
-
-                // Update Humidity display
-                const humidityEl = document.getElementById('humidity');
-                const humidity = c.humidity;
-                humidityEl.textContent = `${humidity}%`;
-                humidityEl.className = ''; // Reset styles
-
-                if (humidity < 35) {
-                    humidityEl.classList.add('metric-green');
-                } else if (humidity <= 45) {
-                    humidityEl.classList.add('metric-yellow');
-                } else {
-                    humidityEl.classList.add('metric-red');
-                }
-
-                // Update Dew Point display
-                const dewEl = document.getElementById('dew-point');
-                const dew = c.dew_point;
-                dewEl.textContent = `${dew.toFixed(2)} °F`;
-                dewEl.className = ''; // Reset styles
-
-                if (temp <= dew) {
-                    dewEl.classList.add('metric-red'); // Dew point is too close to temperature
-                }
-
-                // NEW: Display forecast
-      if (c.forecast && Array.isArray(c.forecast)) {
-        renderForecastCards(c.forecast);
-      }
-            })
-            .catch(error => {
-                console.error('Error fetching climbing conditions:', error);
-            });
-    }
-
-    /**
-     * Fetches data from a URL and renders a Plotly graph
-     * @param {string} url - API endpoint for graph data
-     * @param {string} graphId - DOM ID of the graph container
-     * @param {string} buttonContainerId - ID of the button container to show
-     */
-    function fetchAndRenderGraph(url, graphId, buttonContainerId) {
-        axios.get(url)
-            .then(response => {
-                const graphContainer = document.getElementById(graphId);
-                const data = response.data.data || response.data;
-                const layout = {
-                    ...(response.data.layout || {}),
-                    dragmode: false // Disable drag zoom/pan
-                };
-
-                // Clear previous graph and render new one
-                Plotly.purge(graphContainer);
-                Plotly.newPlot(graphContainer, data, layout, {
-                    displayModeBar: false, // Hide Plotly toolbar
-                    responsive: true,
-                    scrollZoom: false // Disable zooming with scroll
-                });
-
-                // Make sure related button container is visible
-                document.getElementById(buttonContainerId).style.display = 'block';
-            })
-            .catch(error => {
-                console.error(`Error fetching data for ${graphId}:`, error);
-            });
-    }
-
-    /**
-     * Toggles fullscreen mode for a given graph container
-     * @param {string} graphContainerId - DOM ID of the graph container
-     */
-    function toggleFullscreen(graphContainerId) {
-        const container = document.getElementById(graphContainerId);
-
-        // Enter or exit fullscreen depending on current state
-        if (!document.fullscreenElement) {
-            container.requestFullscreen().catch(err => {
-                console.error('Error entering fullscreen:', err);
-            });
-        } else {
-            document.exitFullscreen();
-        }
-
-        // Resize graph after entering/exiting fullscreen for better fit
-        setTimeout(() => {
-            Plotly.Plots.resize(container);
-        }, 1000);
-    }
-
-    function renderForecastCards(forecast) {
-  const container = document.getElementById('forecast-cards');
-  container.innerHTML = '';
-  document.getElementById('forecast-container').style.display = 'block';
-
-  const weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-  const cardWidth = 250;    // fixed card width in px
-  const cardGap = 16;       // gap between cards in px (1rem approx)
-
-  // Create cards once
-  const cards = forecast.slice(0, 5).map(day => {
-    const parts = day.date.split('-');
-    const dateObj = new Date(Date.UTC(parts[0], parts[1] - 1, parts[2]));
-    const weekdayName = weekdays[dateObj.getUTCDay()];
-
-    let bgGradient;
-    let textColor = '#333';
-    const ccs = day.ccs_high;
-
-    if (ccs < 4) {
-      bgGradient = 'linear-gradient(135deg, #f8d7da 0%, #f1b0b7 100%)';
-      textColor = '#721c24';
-    } else if (ccs <= 6) {
-      bgGradient = 'linear-gradient(135deg, #fff3cd 0%, #ffe69e 100%)';
-      textColor = '#856404';
-    } else {
-      bgGradient = 'linear-gradient(135deg, #d4edda 0%, #a8d5a3 100%)';
-      textColor = '#155724';
-    }
-
-    const card = document.createElement('div');
-    card.style.flex = '0 0 auto';
-    card.style.width = `${cardWidth}px`;
-    card.innerHTML = `
-      <div class="card h-100 shadow-sm text-center" style="
-        background: ${bgGradient};
-        color: ${textColor};
-        border-radius: 12px;
-        box-shadow: 0 8px 20px rgba(0,0,0,0.12);
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        padding: 1rem;
-      ">
-        <div class="card-body d-flex flex-column justify-content-center align-items-center px-2 py-3">
-          <h5 class="card-title mb-2" style="font-weight: 700;">${weekdayName}</h5>
-          <p class="mb-1 fw-semibold"><i class="bi bi-speedometer2 me-1"></i> CCS: ${day.ccs_low.toFixed(1)}–${day.ccs_high.toFixed(1)}</p>
-          <p class="mb-1"><i class="bi bi-thermometer-half me-1"></i> Temp: ${day.temp_low.toFixed(1)}–${day.temp_high.toFixed(1)} °F</p>
-          <p class="mb-0"><i class="bi bi-droplet-half me-1"></i> Humidity: ${day.humidity_low}%–${day.humidity_high}%</p>
+    <!-- Climbing Conditions Widget -->
+    <div class="row justify-content-center">
+      <div id="current-conditions-widget" class="widget text-center">
+        <div class="label-current-widget">Current Climbing Conditions</div><br />
+        <div class="conditions-grid">
+          <div class="small-info top-left">
+            <div class="label">Temp</div>
+            <div id="temperature" class="value">Loading...</div>
+          </div>
+          <div class="small-info top-right">
+            <div class="label">Humidity</div>
+            <div id="humidity" class="value">Loading...</div>
+          </div>
+          <div class="ccs-display">
+            <div id="climbing-conditions-score" class="ccs-circle">--</div>
+          </div>
+          <div class="small-info bottom-center">
+            <div class="label">Dew Point</div>
+            <div id="dew-point" class="value">Loading...</div>
+          </div>
         </div>
       </div>
-    `;
+    </div>
 
-    const cardInner = card.querySelector('.card');
-    cardInner.addEventListener('mouseenter', () => {
-      cardInner.style.transform = 'scale(1.05)';
-      cardInner.style.boxShadow = '0 12px 30px rgba(0,0,0,0.25)';
-    });
-    cardInner.addEventListener('mouseleave', () => {
-      cardInner.style.transform = 'scale(1)';
-      cardInner.style.boxShadow = '0 8px 20px rgba(0,0,0,0.12)';
-    });
+    <!-- Forecast Cards -->
+    <div class="graph-container mt-4" id="forecast-container" style="display: none;">
+      <div id="forecast-cards" class="row d-flex flex-wrap justify-content-center"></div>
+    </div>
 
-    return card;
-  });
+    <!-- Graphs Section -->
+    <div class="col-12 mx-auto">
+      <div class="graph-container" id="conditions-graph-container">
+        <div class="graph-scroll-wrapper">
+          <div class="graph-fixed-width" id="conditions-graph"></div>
+        </div>
+      </div>
 
-  // Append cards to container now
-  cards.forEach(card => container.appendChild(card));
+      <div class="graph-container" id="temperature-graph-container">
+        <div class="graph-scroll-wrapper">
+          <div class="graph-fixed-width" id="temp-graph"></div>
+        </div>
+      </div>
 
-  function updateLayout() {
-    const totalCards = cards.length;
-    const totalWidth = (cardWidth * totalCards) + (cardGap * (totalCards - 1));
-    const containerWidth = container.clientWidth;
+      <div class="graph-container" id="humidity-graph-container">
+        <div class="graph-scroll-wrapper">
+          <div class="graph-fixed-width" id="humidity-graph"></div>
+        </div>
+      </div>
+    </div>
 
-    if (totalWidth <= containerWidth) {
-      // Cards fit - center, wrap, no scroll
-      container.style.display = 'flex';
-      container.style.justifyContent = 'center';
-      container.style.flexWrap = 'wrap';
-      container.style.overflowX = 'visible';
-      container.style.gap = '1rem';
-      container.style.paddingBottom = '0';
-    } else {
-      // Cards overflow - scroll horizontally
-      container.style.display = 'flex';
-      container.style.justifyContent = 'flex-start';
-      container.style.flexWrap = 'nowrap';
-      container.style.overflowX = 'auto';
-      container.style.gap = '1rem';
-      container.style.paddingBottom = '0.5rem';
-    }
-  }
+  </div>
 
-  // Initial layout
-  updateLayout();
+  <!-- Footer -->
+  <footer class="text-center mt-5">
+    <p>© 2024 Rising Standard, LLC</p>
+  </footer>
 
-  // Update layout on window resize
-  window.addEventListener('resize', updateLayout);
-}
+  <!-- Custom Script -->
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
 
+  <!-- Bootstrap Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-
-
-
-
-
-    </script>
-
-    <!-- Bootstrap bundle for dropdown functionality and general UI -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
+    <!-- Local App Logic -->
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
 
 </body>
 </html>
-

@@ -53,7 +53,36 @@ model = joblib.load(model_path)
 
 @application.route('/')
 def index():
-    return render_template('index.html')
+    areas = [  # You could load this from a database or JSON later
+        "Black Canyon of the Gunnison, CO",
+        "Bishop, CA",
+        "Boone, NC",
+        "Chattanooga, TN",
+        "Devils Tower National Monument, WY",
+        "Flagstaff, AZ",
+        "Hueco Tanks State Historic Site, TX",
+        "Indian Creek, UT",
+        "Joshua Tree National Park, CA",
+        "Lander, WY",
+        "Leavenworth, WA",
+        "Little Cottonwood Canyon, UT",
+        "Looking Glass Rock, NC",
+        "Maple Canyon, UT",
+        "New River Gorge National Park, WV",
+        "Red River Gorge, KY",
+        "Red Rock Canyon, NV",
+        "Rifle Mountain Park, CO",
+        "Rocky Mountain National Park, CO",
+        "Rumney, NH",
+        "The Shawangunks, NY",
+        "Smith Rock State Park, OR",
+        "Tacoma, WA",
+        "The Needles, CA",
+        "Yosemite National Park, CA",
+        "Zion National Park, UT"
+    ]
+    return render_template('index.html', areas=areas)
+    #return render_template('index.html')
 
 
 def get_destination():
