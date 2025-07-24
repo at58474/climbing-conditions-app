@@ -160,9 +160,9 @@ def plot_hourly_climbing_scores(model, hourly_data, city_display, destination_di
                       line=dict(color="rgba(0, 0, 0, 0)", width=0),
                       fillcolor=color, opacity=0.3)
 
-    fig.update_layout(title=f'5-Day Conditions Score for {destination_display}, near {city_display}',
+    fig.update_layout(title=f'CCS - {destination_display}',
                       xaxis=dict(title='Time', tickmode='array', tickvals=timestamps, ticktext=x_labels, tickangle=45),
-                      yaxis=dict(title='Score'),
+                      yaxis=dict(title='CCS'),
                       showlegend=False)
 
     return fig
@@ -246,9 +246,9 @@ def plot_hourly_temp(model, hourly_data, city_display, destination_display):
                       line=dict(color="rgba(0, 0, 0, 0)", width=0),
                       fillcolor=color, opacity=0.3)
 
-    fig.update_layout(title=f'5-Day Temperature for {destination_display}, near {city_display}',
+    fig.update_layout(title=f'Temperature - {destination_display}',
                       xaxis=dict(title='Time', tickmode='array', tickvals=timestamps, ticktext=x_labels, tickangle=45),
-                      yaxis=dict(title='Temp'),
+                      yaxis=dict(title='Temp (F)'),
                       showlegend=False)
 
     return fig
@@ -327,9 +327,48 @@ def plot_hourly_humidity(model, hourly_data, city_display, destination_display):
                       line=dict(color="rgba(0, 0, 0, 0)", width=0),
                       fillcolor=color, opacity=0.3)
 
-    fig.update_layout(title=f'5-Day Humidity for {destination_display}, near {city_display}',
+    fig.update_layout(title=f'Humidity - {destination_display}',
                       xaxis=dict(title='Time', tickmode='array', tickvals=timestamps, ticktext=x_labels, tickangle=45),
-                      yaxis=dict(title='Humidity'),
+                      yaxis=dict(title='Humidity (%)'),
                       showlegend=False)
 
     return fig
+
+from collections import defaultdict
+def generate_daily_forecast(hourly_data, model):
+    daily_summary = defaultdict(list)
+
+    for entry in hourly_data:
+        dt = datetime.utcfromtimestamp(entry['dt'])
+        date_str = dt.strftime('%Y-%m-%d')  # Group by date only
+
+        temp = entry['main']['temp']
+        humidity = entry['main']['humidity']
+        dew_point = entry['main']['feels_like']
+
+        ccs = calculate_climbing_conditions_score(model, dew_point, humidity, temp)
+
+        daily_summary[date_str].append({
+            'temp': temp,
+            'humidity': humidity,
+            'ccs': ccs
+        })
+
+    # Aggregate into daily high/low summaries
+    daily_forecast = []
+    for date, entries in daily_summary.items():
+        temps = [e['temp'] for e in entries]
+        hums = [e['humidity'] for e in entries]
+        scores = [e['ccs'] for e in entries]
+
+        daily_forecast.append({
+            'date': date,
+            'temp_high': max(temps),
+            'temp_low': min(temps),
+            'humidity_high': max(hums),
+            'humidity_low': min(hums),
+            'ccs_high': max(scores),
+            'ccs_low': min(scores),
+        })
+
+    return daily_forecast

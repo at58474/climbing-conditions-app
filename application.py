@@ -28,13 +28,15 @@ This Flask application routing file contains the following functions:
 
 
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify
-from climbing_conditions import fetch_hourly_weather_data, plot_hourly_climbing_scores, plot_hourly_temp, plot_hourly_humidity, calculate_climbing_conditions_score
+from climbing_conditions import fetch_hourly_weather_data, plot_hourly_climbing_scores, plot_hourly_temp, plot_hourly_humidity, calculate_climbing_conditions_score, fetch_hourly_weather_data, generate_daily_forecast
 import logging
 import os
 import joblib
 from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.metrics import mean_squared_error, r2_score
+
+
 
 application = Flask(__name__)
 
@@ -225,12 +227,16 @@ def current_conditions():
     # Calls the round() function to round the CCS to the tenths
     rounded_score = round(score, 1)
 
+    # NEW: Include forecast
+    forecast_data = generate_daily_forecast(hourly_data, model)
+
     # Creates a JSON response object that contains the temp, humidity, dew point, and CCS.
     response_data = {
         'temperature': temp_f,
         'humidity': humidity,
         'dew_point': dew_point_f,
-        'climbing_conditions_score': rounded_score
+        'climbing_conditions_score': rounded_score,
+        'forecast': forecast_data
     }
 
     # Using jsonify() rather than json.dumps() in a Flask app automatically sets the right response headers
@@ -273,6 +279,10 @@ def humidity_data():
     }
 
     return jsonify(response_data)
+
+
+
+
 
 if __name__ == '__main__':
     application.run()

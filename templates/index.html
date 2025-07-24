@@ -7,6 +7,8 @@
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/main.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
 </head>
 <body>
     <!-- Header Navbar -->
@@ -70,6 +72,10 @@
             </div>
         </div>
 
+
+
+
+
         <!-- Climbing Conditions and Temperature Graphs Section -->
         <div class="row justify-content-center">
             <!-- Current Conditions Widget -->
@@ -94,33 +100,31 @@
                 </div>
               </div>
             </div>
+
+            <!-- Daily Forecast Section -->
+<div class="graph-container mt-4" id="forecast-container" style="display: none;">
+
+  <div class="row" id="forecast-cards" class="d-flex flex-wrap justify-content-center"></div>
+</div>
+
             <div class="col-12 mx-auto">
                 <!-- Climbing Conditions Graph -->
                 <div class="graph-container" id="conditions-graph-container">
-                    <h4>Climbing Conditions</h4>
-                    <div class="button-container text-center" id="conditions-button-container" style="display: none;">
-                        <button type="button" id="toggle-conditions-fullscreen" class="btn btn-secondary mb-3" style="width: 150px;">Fullscreen</button>
-                    </div>
+
                     <div class="graph-scroll-wrapper">
                       <div class="graph-fixed-width" id="conditions-graph"></div>
                     </div>
                 </div>
                 <!-- Temperature Graph -->
                 <div class="graph-container" id="temperature-graph-container">
-                    <h4>Temperature</h4>
-                    <div class="button-container text-center" id="temperature-button-container" style="display: none;">
-                        <button type="button" id="toggle-temperature-fullscreen" class="btn btn-secondary mb-3" style="width: 150px;">Fullscreen</button>
-                    </div>
+
                     <div class="graph-scroll-wrapper">
                       <div class="graph-fixed-width" id="temp-graph"></div>
                     </div>
                 </div>
                 <!-- Humidity Graph -->
                 <div class="graph-container" id="humidity-graph-container">
-                    <h4>Humidity</h4>
-                    <div class="button-container text-center" id="humidity-button-container" style="display: none;">
-                        <button type="button" id="toggle-humidity-fullscreen" class="btn btn-secondary mb-3" style="width: 150px;">Fullscreen</button>
-                    </div>
+
                     <div class="graph-scroll-wrapper">
                       <div class="graph-fixed-width" id="humidity-graph"></div>
                     </div>
@@ -136,160 +140,297 @@
         <p>© 2024 Rising Standard, LLC</p>
     </footer>
 
+
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    // Load previously selected destination
-    const storedDestination = localStorage.getItem('selectedDestination');
-    if (storedDestination) {
-        updateSelectedDestination(storedDestination);
-    }
+    <script>
+    // Wait for the DOM to finish loading before executing the script
+    document.addEventListener('DOMContentLoaded', () => {
+        // Retrieve and apply the previously selected destination from localStorage
+        const storedDestination = localStorage.getItem('selectedDestination');
+        if (storedDestination) {
+            updateSelectedDestination(storedDestination);
+        }
 
-    // Add click handlers for each dropdown item
-    document.querySelectorAll('#destination-menu .dropdown-item').forEach(item => {
-        item.addEventListener('click', event => {
-            event.preventDefault();
-            const destination = item.getAttribute('data-destination');
-            updateSelectedDestination(destination);
-        });
-    });
-
-    // Resize graphs on window resize
-    window.addEventListener('resize', () => {
-        ['temperature-graph', 'humidity-graph', 'dew-point-graph'].forEach(id => {
-            Plotly.Plots.resize(document.getElementById(id));
-        });
-    });
-
-    // Fullscreen toggles
-    document.getElementById('toggle-conditions-fullscreen').addEventListener('click', () => toggleFullscreen('conditions-graph-container'));
-    document.getElementById('toggle-temperature-fullscreen').addEventListener('click', () => toggleFullscreen('temperature-graph-container'));
-    document.getElementById('toggle-humidity-fullscreen').addEventListener('click', () => toggleFullscreen('humidity-graph-container'));
-    document.getElementById('toggle-dew-point-fullscreen').addEventListener('click', () => toggleFullscreen('dew-point-graph-container'));
-});
-
-/**
- * Updates the UI and fetches new data when a destination is selected
- */
-function updateSelectedDestination(destination) {
-    // Save and display destination
-    localStorage.setItem('selectedDestination', destination);
-    document.getElementById('selected-destination-label').textContent = destination;
-
-    // Fetch new data
-    fetchCurrentClimbingConditions(destination);
-    fetchAndRenderGraph(`/graph?destination=${destination}`, 'conditions-graph', 'conditions-button-container');
-    fetchAndRenderGraph(`/graphtemp?destination=${destination}`, 'temp-graph', 'temperature-button-container');
-    fetchAndRenderGraph(`/graphhumidity?destination=${destination}`, 'humidity-graph', 'humidity-button-container');
-}
-
-/**
- * Fetch current conditions for a specific destination
- */
-function fetchCurrentClimbingConditions(destination) {
-    axios.get(`/current_conditions?destination=${destination}`)
-        .then(response => {
-            const c = response.data;
-
-            // CCS display
-            const ccsElement = document.getElementById('climbing-conditions-score');
-            ccsElement.textContent = c.climbing_conditions_score.toFixed(1);
-            ccsElement.className = 'ccs-circle'; // reset to base class
-            if (c.climbing_conditions_score < 4) {
-                ccsElement.classList.add('ccs-red');
-            } else if (c.climbing_conditions_score <= 6) {
-                ccsElement.classList.add('ccs-yellow');
-            } else {
-                ccsElement.classList.add('ccs-green');
-            }
-
-            // Temperature
-            const tempEl = document.getElementById('temperature');
-            const temp = c.temperature;
-            tempEl.textContent = `${temp.toFixed(2)} °F`;
-            tempEl.className = ''; // reset
-            if (temp < 25) {
-                tempEl.classList.add('metric-red');
-            } else if (temp <= 35) {
-                tempEl.classList.add('metric-yellow');
-            } else if (temp <= 65) {
-                tempEl.classList.add('metric-green');
-            } else if (temp <= 80) {
-                tempEl.classList.add('metric-yellow');
-            } else {
-                tempEl.classList.add('metric-red');
-            }
-
-            // Humidity
-            const humidityEl = document.getElementById('humidity');
-            const humidity = c.humidity;
-            humidityEl.textContent = `${humidity}%`;
-            humidityEl.className = '';
-            if (humidity < 35) {
-                humidityEl.classList.add('metric-green');
-            } else if (humidity <= 45) {
-                humidityEl.classList.add('metric-yellow');
-            } else {
-                humidityEl.classList.add('metric-red');
-            }
-
-            // Dew Point
-            const dewEl = document.getElementById('dew-point');
-            const dew = c.dew_point;
-            dewEl.textContent = `${dew.toFixed(2)} °F`;
-            dewEl.className = '';
-            if (temp <= dew) {
-                dewEl.classList.add('metric-red');
-            }
-        })
-        .catch(error => {
-            console.error('Error fetching climbing conditions:', error);
-        });
-}
-
-function fetchAndRenderGraph(url, graphId, buttonContainerId) {
-    axios.get(url)
-        .then(response => {
-            const graphContainer = document.getElementById(graphId);
-            const data = response.data.data || response.data;
-            const layout = {
-                ...(response.data.layout || {}),
-                dragmode: false  // ⛔ disables zoom/pan drag
-            };
-
-            Plotly.purge(graphContainer);
-
-            Plotly.newPlot(graphContainer, data, layout, {
-                displayModeBar: false, // hides zoom/save buttons
-                responsive: true,
-                scrollZoom: false       // ⛔ disables zoom on scroll
+        // Attach click event listeners to all dropdown items in the destination menu
+        document.querySelectorAll('#destination-menu .dropdown-item').forEach(item => {
+            item.addEventListener('click', event => {
+                event.preventDefault(); // Prevent default link behavior
+                const destination = item.getAttribute('data-destination');
+                updateSelectedDestination(destination); // Update UI and fetch data
             });
-
-            document.getElementById(buttonContainerId).style.display = 'block';
-        })
-        .catch(error => {
-            console.error(`Error fetching data for ${graphId}:`, error);
         });
-}
 
-function toggleFullscreen(graphContainerId) {
-    const container = document.getElementById(graphContainerId);
-    if (!document.fullscreenElement) {
-        container.requestFullscreen().catch(err => {
-            console.error('Error entering fullscreen:', err);
+        // Redraw graphs when the window is resized to ensure responsiveness
+        window.addEventListener('resize', () => {
+            ['temperature-graph', 'humidity-graph', 'dew-point-graph'].forEach(id => {
+                Plotly.Plots.resize(document.getElementById(id));
+            });
         });
-    } else {
-        document.exitFullscreen();
+
+        // Set up fullscreen toggle buttons for different graph containers
+        document.getElementById('toggle-conditions-fullscreen').addEventListener('click', () => toggleFullscreen('conditions-graph-container'));
+        document.getElementById('toggle-temperature-fullscreen').addEventListener('click', () => toggleFullscreen('temperature-graph-container'));
+        document.getElementById('toggle-humidity-fullscreen').addEventListener('click', () => toggleFullscreen('humidity-graph-container'));
+        document.getElementById('toggle-dew-point-fullscreen').addEventListener('click', () => toggleFullscreen('dew-point-graph-container'));
+    });
+
+    /**
+     * Updates the selected destination: saves it, updates UI, and fetches data
+     */
+    function updateSelectedDestination(destination) {
+        // Save selected destination to localStorage
+        localStorage.setItem('selectedDestination', destination);
+
+        // Update the destination label on the UI
+        document.getElementById('selected-destination-label').textContent = destination;
+
+        // Fetch and display current climbing conditions
+        fetchCurrentClimbingConditions(destination);
+
+        // Fetch and render graphs for different metrics
+        fetchAndRenderGraph(`/graph?destination=${destination}`, 'conditions-graph', 'conditions-button-container');
+        fetchAndRenderGraph(`/graphtemp?destination=${destination}`, 'temp-graph', 'temperature-button-container');
+        fetchAndRenderGraph(`/graphhumidity?destination=${destination}`, 'humidity-graph', 'humidity-button-container');
     }
-    setTimeout(() => {
-        Plotly.Plots.resize(container);
-    }, 1000);
+
+    /**
+     * Fetches current climbing conditions for the selected destination
+     * and updates the UI accordingly
+     */
+    function fetchCurrentClimbingConditions(destination) {
+        axios.get(`/current_conditions?destination=${destination}`)
+            .then(response => {
+                const c = response.data;
+
+                // Update Climbing Conditions Score (CCS) display
+                const ccsElement = document.getElementById('climbing-conditions-score');
+                ccsElement.textContent = c.climbing_conditions_score.toFixed(1);
+                ccsElement.className = 'ccs-circle'; // Reset to base class
+
+                // Apply color based on score
+                if (c.climbing_conditions_score < 4) {
+                    ccsElement.classList.add('ccs-red');
+                } else if (c.climbing_conditions_score <= 6) {
+                    ccsElement.classList.add('ccs-yellow');
+                } else {
+                    ccsElement.classList.add('ccs-green');
+                }
+
+                // Update Temperature display with color coding
+                const tempEl = document.getElementById('temperature');
+                const temp = c.temperature;
+                tempEl.textContent = `${temp.toFixed(2)} °F`;
+                tempEl.className = ''; // Reset previous styles
+
+                if (temp < 25) {
+                    tempEl.classList.add('metric-red');
+                } else if (temp <= 35) {
+                    tempEl.classList.add('metric-yellow');
+                } else if (temp <= 65) {
+                    tempEl.classList.add('metric-green');
+                } else if (temp <= 80) {
+                    tempEl.classList.add('metric-yellow');
+                } else {
+                    tempEl.classList.add('metric-red');
+                }
+
+                // Update Humidity display
+                const humidityEl = document.getElementById('humidity');
+                const humidity = c.humidity;
+                humidityEl.textContent = `${humidity}%`;
+                humidityEl.className = ''; // Reset styles
+
+                if (humidity < 35) {
+                    humidityEl.classList.add('metric-green');
+                } else if (humidity <= 45) {
+                    humidityEl.classList.add('metric-yellow');
+                } else {
+                    humidityEl.classList.add('metric-red');
+                }
+
+                // Update Dew Point display
+                const dewEl = document.getElementById('dew-point');
+                const dew = c.dew_point;
+                dewEl.textContent = `${dew.toFixed(2)} °F`;
+                dewEl.className = ''; // Reset styles
+
+                if (temp <= dew) {
+                    dewEl.classList.add('metric-red'); // Dew point is too close to temperature
+                }
+
+                // NEW: Display forecast
+      if (c.forecast && Array.isArray(c.forecast)) {
+        renderForecastCards(c.forecast);
+      }
+            })
+            .catch(error => {
+                console.error('Error fetching climbing conditions:', error);
+            });
+    }
+
+    /**
+     * Fetches data from a URL and renders a Plotly graph
+     * @param {string} url - API endpoint for graph data
+     * @param {string} graphId - DOM ID of the graph container
+     * @param {string} buttonContainerId - ID of the button container to show
+     */
+    function fetchAndRenderGraph(url, graphId, buttonContainerId) {
+        axios.get(url)
+            .then(response => {
+                const graphContainer = document.getElementById(graphId);
+                const data = response.data.data || response.data;
+                const layout = {
+                    ...(response.data.layout || {}),
+                    dragmode: false // Disable drag zoom/pan
+                };
+
+                // Clear previous graph and render new one
+                Plotly.purge(graphContainer);
+                Plotly.newPlot(graphContainer, data, layout, {
+                    displayModeBar: false, // Hide Plotly toolbar
+                    responsive: true,
+                    scrollZoom: false // Disable zooming with scroll
+                });
+
+                // Make sure related button container is visible
+                document.getElementById(buttonContainerId).style.display = 'block';
+            })
+            .catch(error => {
+                console.error(`Error fetching data for ${graphId}:`, error);
+            });
+    }
+
+    /**
+     * Toggles fullscreen mode for a given graph container
+     * @param {string} graphContainerId - DOM ID of the graph container
+     */
+    function toggleFullscreen(graphContainerId) {
+        const container = document.getElementById(graphContainerId);
+
+        // Enter or exit fullscreen depending on current state
+        if (!document.fullscreenElement) {
+            container.requestFullscreen().catch(err => {
+                console.error('Error entering fullscreen:', err);
+            });
+        } else {
+            document.exitFullscreen();
+        }
+
+        // Resize graph after entering/exiting fullscreen for better fit
+        setTimeout(() => {
+            Plotly.Plots.resize(container);
+        }, 1000);
+    }
+
+    function renderForecastCards(forecast) {
+  const container = document.getElementById('forecast-cards');
+  container.innerHTML = '';
+  document.getElementById('forecast-container').style.display = 'block';
+
+  const weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const cardWidth = 250;    // fixed card width in px
+  const cardGap = 16;       // gap between cards in px (1rem approx)
+
+  // Create cards once
+  const cards = forecast.slice(0, 5).map(day => {
+    const parts = day.date.split('-');
+    const dateObj = new Date(Date.UTC(parts[0], parts[1] - 1, parts[2]));
+    const weekdayName = weekdays[dateObj.getUTCDay()];
+
+    let bgGradient;
+    let textColor = '#333';
+    const ccs = day.ccs_high;
+
+    if (ccs < 4) {
+      bgGradient = 'linear-gradient(135deg, #f8d7da 0%, #f1b0b7 100%)';
+      textColor = '#721c24';
+    } else if (ccs <= 6) {
+      bgGradient = 'linear-gradient(135deg, #fff3cd 0%, #ffe69e 100%)';
+      textColor = '#856404';
+    } else {
+      bgGradient = 'linear-gradient(135deg, #d4edda 0%, #a8d5a3 100%)';
+      textColor = '#155724';
+    }
+
+    const card = document.createElement('div');
+    card.style.flex = '0 0 auto';
+    card.style.width = `${cardWidth}px`;
+    card.innerHTML = `
+      <div class="card h-100 shadow-sm text-center" style="
+        background: ${bgGradient};
+        color: ${textColor};
+        border-radius: 12px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        padding: 1rem;
+      ">
+        <div class="card-body d-flex flex-column justify-content-center align-items-center px-2 py-3">
+          <h5 class="card-title mb-2" style="font-weight: 700;">${weekdayName}</h5>
+          <p class="mb-1 fw-semibold"><i class="bi bi-speedometer2 me-1"></i> CCS: ${day.ccs_low.toFixed(1)}–${day.ccs_high.toFixed(1)}</p>
+          <p class="mb-1"><i class="bi bi-thermometer-half me-1"></i> Temp: ${day.temp_low.toFixed(1)}–${day.temp_high.toFixed(1)} °F</p>
+          <p class="mb-0"><i class="bi bi-droplet-half me-1"></i> Humidity: ${day.humidity_low}%–${day.humidity_high}%</p>
+        </div>
+      </div>
+    `;
+
+    const cardInner = card.querySelector('.card');
+    cardInner.addEventListener('mouseenter', () => {
+      cardInner.style.transform = 'scale(1.05)';
+      cardInner.style.boxShadow = '0 12px 30px rgba(0,0,0,0.25)';
+    });
+    cardInner.addEventListener('mouseleave', () => {
+      cardInner.style.transform = 'scale(1)';
+      cardInner.style.boxShadow = '0 8px 20px rgba(0,0,0,0.12)';
+    });
+
+    return card;
+  });
+
+  // Append cards to container now
+  cards.forEach(card => container.appendChild(card));
+
+  function updateLayout() {
+    const totalCards = cards.length;
+    const totalWidth = (cardWidth * totalCards) + (cardGap * (totalCards - 1));
+    const containerWidth = container.clientWidth;
+
+    if (totalWidth <= containerWidth) {
+      // Cards fit - center, wrap, no scroll
+      container.style.display = 'flex';
+      container.style.justifyContent = 'center';
+      container.style.flexWrap = 'wrap';
+      container.style.overflowX = 'visible';
+      container.style.gap = '1rem';
+      container.style.paddingBottom = '0';
+    } else {
+      // Cards overflow - scroll horizontally
+      container.style.display = 'flex';
+      container.style.justifyContent = 'flex-start';
+      container.style.flexWrap = 'nowrap';
+      container.style.overflowX = 'auto';
+      container.style.gap = '1rem';
+      container.style.paddingBottom = '0.5rem';
+    }
+  }
+
+  // Initial layout
+  updateLayout();
+
+  // Update layout on window resize
+  window.addEventListener('resize', updateLayout);
 }
-</script>
 
 
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+
+
+
+    </script>
+
+    <!-- Bootstrap bundle for dropdown functionality and general UI -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
 
 </body>
 </html>
