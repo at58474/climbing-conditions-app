@@ -2,10 +2,14 @@
 document.addEventListener('DOMContentLoaded', () => {
 
   // Get previously selected destination from localStorage (if any)
-  const storedDestination = localStorage.getItem('selectedDestination');
-  if (storedDestination) {
-    updateSelectedDestination(storedDestination);  // Set it as active
+  let destination = localStorage.getItem('selectedDestination');
+
+  if (!destination) {
+    destination = 'Red River Gorge'; // ✅ Default destination
+    localStorage.setItem('selectedDestination', destination);
   }
+
+  updateSelectedDestination(destination); // Set it as active
 
   // Attach click listeners to each destination dropdown item
   document.querySelectorAll('#destination-menu .dropdown-item').forEach(item => {
