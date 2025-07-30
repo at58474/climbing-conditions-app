@@ -198,6 +198,7 @@ function renderForecastCards(forecast) {
           <p class="mb-1 fw-semibold"><i class="bi bi-speedometer2 me-1"></i> CCS: ${day.ccs_low.toFixed(1)}–${day.ccs_high.toFixed(1)}</p>
           <p class="mb-1"><i class="bi bi-thermometer-half me-1"></i> Temp: ${day.temp_low.toFixed(1)}–${day.temp_high.toFixed(1)} °F</p>
           <p class="mb-0"><i class="bi bi-droplet-half me-1"></i> Humidity: ${day.humidity_low}%–${day.humidity_high}%</p>
+          <p class="mb-0"><i class="bi bi-cloud-rain me-1"></i> Rain: ${day.precip_high}%</p>
         </div>
       </div>
     `;

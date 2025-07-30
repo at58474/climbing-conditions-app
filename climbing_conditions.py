@@ -345,13 +345,15 @@ def generate_daily_forecast(hourly_data, model):
         temp = entry['main']['temp']
         humidity = entry['main']['humidity']
         dew_point = entry['main']['feels_like']
+        chance_of_precip = entry.get('pop', 0) * 100  # Convert to percentage
 
         ccs = calculate_climbing_conditions_score(model, dew_point, humidity, temp)
 
         daily_summary[date_str].append({
             'temp': temp,
             'humidity': humidity,
-            'ccs': ccs
+            'ccs': ccs,
+            'precip': chance_of_precip
         })
 
     # Aggregate into daily high/low summaries
@@ -360,6 +362,7 @@ def generate_daily_forecast(hourly_data, model):
         temps = [e['temp'] for e in entries]
         hums = [e['humidity'] for e in entries]
         scores = [e['ccs'] for e in entries]
+        precips = [e['precip'] for e in entries]
 
         daily_forecast.append({
             'date': date,
@@ -369,6 +372,8 @@ def generate_daily_forecast(hourly_data, model):
             'humidity_low': min(hums),
             'ccs_high': max(scores),
             'ccs_low': min(scores),
+            'precip_high': max(precips),
+            'precip_low': min(precips)
         })
 
     return daily_forecast
