@@ -28,6 +28,12 @@ function getUserTimezoneOffset() {
   return new Date().getTimezoneOffset();  // returns offset in minutes (e.g., -240 for EDT)
 }
 
+function degreesToCardinal(num) {
+    var val = Math.floor((num / 22.5) + 0.5);
+    var arr = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"];
+    return arr[(val % 16)];
+}
+
 function updateSelectedDestination(destination) {
   localStorage.setItem('selectedDestination', destination);
   document.getElementById('selected-destination-label').textContent = destination;
@@ -43,6 +49,9 @@ function updateSelectedDestination(destination) {
       updateMetric('temperature', `${current.temp.toFixed(2)} °F`, getTempColor(current.temp));
       updateMetric('humidity', `${current.humidity}%`, getHumidityColor(current.humidity));
       updateMetric('dew-point', `${current.dew_point.toFixed(2)} °F`, current.temp <= current.dew_point ? 'metric-red' : '');
+      updateMetric('wind-speed', `${current.wind_speed.toFixed(0)} mph`);
+      updateMetric('wind-gust', `${current.wind_gust.toFixed(0)} mph`);
+      updateMetric('wind-direction', `${degreesToCardinal(current.wind_direction)}`);
 
       if (Array.isArray(c.forecast)) {
         renderForecastCards(c.forecast);
@@ -141,6 +150,8 @@ function renderForecastCards(forecast) {
           <p class="mb-1"><i class="bi bi-thermometer-half me-1"></i> Temp: ${day.temp_low.toFixed(1)}–${day.temp_high.toFixed(1)} °F</p>
           <p class="mb-0"><i class="bi bi-droplet-half me-1"></i> Humidity: ${day.humidity_low}%–${day.humidity_high}%</p>
           <p class="mb-0"><i class="bi bi-cloud-rain me-1"></i> Rain: ${day.precip_high}%</p>
+          <p class="mb-0"><i class="bi bi-wind me-1"></i> Wind: ${day.wind_low}–${day.wind_high}mph</p>
+          <p class="mb-0"><i class="bi bi-beaker me-1"></i> Rain Total: ${day.rain_accumulation}"</p>
         </div>
       </div>
     `;

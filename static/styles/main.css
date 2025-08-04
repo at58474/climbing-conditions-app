@@ -190,7 +190,7 @@ button[type="button"]:hover {
   grid-template-areas:
     "temp . humidity"
     ". ccs ."
-    ". dew .";
+    "wind gust dir";
   grid-template-columns: 1fr 2fr 1fr;
   grid-template-rows: auto 1fr auto;
   align-items: center;
@@ -211,9 +211,14 @@ button[type="button"]:hover {
 .top-right {
   grid-area: humidity;
 }
-
+.bottom-left {
+  grid-area: wind;
+}
 .bottom-center {
-  grid-area: dew;
+  grid-area: gust;
+}
+.bottom-right {
+  grid-area: dir;
 }
 
 .ccs-display {
@@ -231,7 +236,7 @@ button[type="button"]:hover {
 
 .label {
   font-weight: 600;
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   text-transform: uppercase;
   color: #888;
 }
@@ -309,7 +314,13 @@ button[type="button"]:hover {
 /* ------------------ Metric Values ------------------ */
 #temperature,
 #humidity,
-#dew-point {
+#dew-point{
+  font-size: 1rem;
+  font-weight: bold;
+}
+#wind-speed,
+#wind-gust,
+#wind-direction{
   font-size: 1rem;
   font-weight: bold;
 }
