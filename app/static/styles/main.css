@@ -338,3 +338,23 @@ button[type="button"]:hover {
     margin-bottom: 20px;
   }
 }
+
+#submit-ccs-link {
+    background-color: #e2e3e5;  /* soft light gray */
+    color: #333;                /* dark gray text */
+    border: 1.5px solid #adb5bd; /* medium gray border */
+    padding: 0.5rem 1.25rem;
+    border-radius: 8px;
+    font-weight: 600;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    display: inline-block;
+    text-decoration: none;
+  }
+  #submit-ccs-link:hover,
+  #submit-ccs-link:focus {
+    background-color: #ced4da;  /* a bit darker gray */
+    color: #212529;             /* almost black text */
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    text-decoration: none;
+  }

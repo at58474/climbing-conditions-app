@@ -22,6 +22,8 @@ document.addEventListener('DOMContentLoaded', () => {
       btn.addEventListener('click', () => toggleFullscreen(`${type}-graph-container`));
     }
   });
+
+
 });
 
 function getUserTimezoneOffset() {
@@ -37,6 +39,12 @@ function degreesToCardinal(num) {
 function updateSelectedDestination(destination) {
   localStorage.setItem('selectedDestination', destination);
   document.getElementById('selected-destination-label').textContent = destination;
+
+  // Update submit CCS link with current destination
+  const submitLink = document.getElementById('submit-ccs-link');
+  if (submitLink) {
+    submitLink.href = `/submit-ccs?destination=${encodeURIComponent(destination)}`;
+  }
 
   const tzOffset = getUserTimezoneOffset();  // <--- capture offset
 
@@ -63,6 +71,7 @@ function updateSelectedDestination(destination) {
     })
     .catch(err => console.error('Error loading all data:', err));
 }
+
 
 
 function renderPlotlyGraphFromJSON(jsonStr, graphId, buttonContainerId) {
