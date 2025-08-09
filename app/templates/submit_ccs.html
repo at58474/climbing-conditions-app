@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Submit Personalized CCS</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap 5 CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #f8f9fa;
+            padding-top: 50px;
+        }
+        .form-container {
+            max-width: 500px;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+        }
+        .form-title {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h2 class="form-title">Submit Your Score</h2>
+
+        <div class="mb-3">
+            <label for="weatherSelect" class="form-label">Select a Time:</label>
+            <select id="weatherSelect" class="form-select">
+                <option value="">Loading...</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="ccsSelect" class="form-label">Your CCS Score</label>
+            <select id="ccsSelect" class="form-select"></select>
+        </div>
+
+        <div class="d-grid">
+            <button class="btn btn-primary" onclick="submitCCS()">Submit</button>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Destination passed from Flask
+        const destination = "{{ destination|e }}";
+
+        const lat = {{ lat }};
+        const lon = {{ lon }};
+
+        // Populate CCS dropdown
+        const ccsSelect = document.getElementById('ccsSelect');
+        for (let i = 0; i <= 10; i++) {
+            const option = document.createElement('option');
+            option.value = i;
+            option.text = i;
+            ccsSelect.appendChild(option);
+        }
+
+        // Load historical weather
+        fetch(`/api/historical_weather?lat=${lat}&lon=${lon}`)
+            .then(res => res.json())
+            .then(data => {
+                const dropdown = document.getElementById('weatherSelect');
+                dropdown.innerHTML = "";
+
+                if (Array.isArray(data) && data.length > 0) {
+    for (let i = data.length - 1; i >= 0; i--) {
+        const item = data[i];
+        const option = document.createElement('option');
+        option.value = JSON.stringify(item);
+
+        const date = new Date(item.dt * 1000);
+        const label = date.toLocaleString(undefined, {
+            weekday: 'short',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true
+        });
+
+        option.text = `${label} — Temp: ${item.temp}°F, Humidity: ${item.humidity}%`;
+        dropdown.appendChild(option);
+    }
+}
+ else {
+                    const option = document.createElement('option');
+                    option.text = "No historical data available";
+                    dropdown.appendChild(option);
+                }
+            })
+            .catch(error => {
+                console.error("Failed to load historical weather:", error);
+            });
+
+        // Submit handler
+        function submitCCS() {
+            const selectedWeather = document.getElementById('weatherSelect').value;
+            const ccs = parseInt(document.getElementById('ccsSelect').value);
+
+            if (!selectedWeather) {
+                alert("Please select a historical weather entry.");
+                return;
+            }
+
+            const weather = JSON.parse(selectedWeather);
+
+            fetch('/submit_ccs_data', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    timestamp: weather.dt,
+                    temperature: weather.temp,
+                    humidity: weather.humidity,
+                    ccs: ccs
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    alert("Submission successful!");
+                    window.location.href = `/?destination=${encodeURIComponent(destination)}`;
+                } else {
+                    alert("Submission failed.");
+                }
+            })
+            .catch(err => {
+                console.error("Submission error:", err);
+                alert("Error submitting data.");
+            });
+        }
+    </script>
+</body>
+</html>
