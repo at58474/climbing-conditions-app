@@ -58,7 +58,7 @@ function updateSelectedDestination(destination) {
 
       if (Array.isArray(c.forecast)) renderForecastCards(c.forecast);
 
-      // render all graphs, then sync scrollbars
+      // Render all graphs, then sync scrollbars
       Promise.all([
         renderPlotlyGraphFromJSON(res.data.graphs.ccs, 'conditions-graph', 'conditions-button-container'),
         renderPlotlyGraphFromJSON(res.data.graphs.temperature, 'temp-graph', 'temperature-button-container'),
@@ -73,18 +73,29 @@ function renderPlotlyGraphFromJSON(jsonStr, graphId, buttonContainerId) {
   const obj = JSON.parse(jsonStr);
   Plotly.purge(graph);
 
-  return Plotly.newPlot(graph, obj.data, { ...obj.layout, dragmode: 'pan' }, {
+  // ✅ Disable pan/zoom, but keep hover + click popups
+  const layout = {
+    ...obj.layout,
+    dragmode: false   // disables panning
+  };
+
+  const config = {
     displayModeBar: false,
     responsive: true,
-    scrollZoom: true
-  }).then(() => {
+    scrollZoom: false,  // disable scroll zoom
+    doubleClick: false, // disable double-click zoom reset
+    staticPlot: false   // ✅ keep interactivity (hover, click)
+  };
+
+  return Plotly.newPlot(graph, obj.data, layout, config).then(() => {
     const btn = document.getElementById(buttonContainerId);
     if (btn) btn.style.display = 'block';
     return graph;
   });
 }
 
-// === NEW: Scrollbar Sync Function ===
+
+// === Scrollbar Sync Function ===
 function setupScrollSync() {
   const wrappers = Array.from(document.querySelectorAll('.graph-scroll-wrapper'));
   let isSyncingScroll = false;
